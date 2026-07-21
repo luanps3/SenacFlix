@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="SenacFlix.API/SenacFlix.API.csproj" />
+  <Project Path="SenacFlix.Application/SenacFlix.Application.csproj" />
+  <Project Path="SenacFlix.Domain/SenacFlix.Domain.csproj" />
+  <Project Path="SenacFlix.Infrastructure/SenacFlix.Infrastructure.csproj" />
+  <Project Path="SenacFlix.UI/SenacFlix.UI.csproj" />
+</Solution>
