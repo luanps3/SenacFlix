@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Infrastructure\Dados\SeedDados.cs" Link="Dados\SeedDados.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SenacFlix.Domain\SenacFlix.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

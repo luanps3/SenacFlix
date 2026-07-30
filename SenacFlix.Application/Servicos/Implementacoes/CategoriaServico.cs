@@ -130,6 +130,48 @@ namespace SenacFlix.Application.Servicos.Implementacoes
                 return ApiResposta<bool>.Falha($"Erro ao desativar a categoria {ex.Message}");
             }
         }
+        public async Task<ApiResposta<bool>> ReativarAsync(int id)
+        {
+            try
+            {
+                var categoria = await _repositorio.ObterPorIdAsync(id);
+                if (categoria == null)
+                    return ApiResposta<bool>.Falha("Categoria não encontrada");
+
+                await _repositorio.ReativarAsync(id);
+                return ApiResposta<bool>.Ok(true, "Categoria reativada com sucesso.");
+
+            }
+            catch (Exception ex)
+            {
+                return ApiResposta<bool>.Falha($"Erro ao reativar a categoria {ex.Message}");
+            }
+        }
+
+        public async Task<ApiResposta<bool>> ExcluirPermanentementeAsync(int id)
+        {
+            try
+            {
+                var categoria = await _repositorio.ObterPorIdAsync(id);
+                if (categoria == null)
+                    return ApiResposta<bool>.Falha("Categoria não encontrada");
+
+                //verifica se existe algum filme na categoria
+                if (categoria.Filmes != null && categoria.Filmes.Any(f => !f.Ativo || f.Ativo))
+                {
+                    return ApiResposta<bool>.Falha("Não é possivel excluir uma categoria que contenha algum filme.");
+                }
+
+                await _repositorio.ExcluirPermanentementeAsync(id);
+                return ApiResposta<bool>.Ok(true, "Categoria excluída com sucesso.");
+
+
+            }
+            catch (Exception ex)
+            {
+                return ApiResposta<bool>.Falha($"Erro ao excluir a categoria {ex.Message}");
+            }
+        }
 
     }
 }
