@@ -1,9 +1,11 @@
-﻿// Nome do arquivo: CategoriaServico.cs
+// Nome do arquivo: CategoriaServico.cs
 // Objetivo: Implementacao do servico de categorias
 // Camada: Application
 // Como participa: Regras de negocio e orquestracao entre repositorios e AutoMapper para Categorias
 
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using SenacFlix.Application.DTOs;
 using SenacFlix.Application.Servicos.Interfaces;
@@ -17,10 +19,8 @@ namespace SenacFlix.Application.Servicos.Implementacoes
         private readonly ICategoriaRepositorio _repositorio;
         private readonly IMapper _mapper;
 
-        //Construtor
         public CategoriaServico(ICategoriaRepositorio repositorio, IMapper mapper)
         {
-            //DI - Dependency Injection
             _repositorio = repositorio;
             _mapper = mapper;
         }
@@ -44,11 +44,11 @@ namespace SenacFlix.Application.Servicos.Implementacoes
             try
             {
                 var categoria = await _repositorio.ObterPorIdAsync(id);
-                if (categoria == null) return ApiResposta<CategoriaDto>.Falha("Categoria não encontrada");
+                if (categoria == null)
+                    return ApiResposta<CategoriaDto>.Falha("Categoria nao encontrada.");
 
                 var dto = _mapper.Map<CategoriaDto>(categoria);
                 return ApiResposta<CategoriaDto>.Ok(dto);
-              
             }
             catch (Exception ex)
             {
@@ -63,7 +63,6 @@ namespace SenacFlix.Application.Servicos.Implementacoes
                 var todas = await _repositorio.ObterTodasAsync(true);
                 foreach (var c in todas)
                 {
-                    //Compara se o nome que está percorrendo no foreach é igual algum nome já existente nas categorias.
                     if (c.Nome.Equals(dto.Nome, StringComparison.OrdinalIgnoreCase))
                         return ApiResposta<CategoriaDto>.Falha("Já existe uma categoria com este nome.");
                 }
@@ -71,9 +70,8 @@ namespace SenacFlix.Application.Servicos.Implementacoes
                 var categoria = _mapper.Map<Categoria>(dto);
                 var categoriaCadastrada = await _repositorio.AdicionarAsync(categoria);
                 var categoriaDto = _mapper.Map<CategoriaDto>(categoriaCadastrada);
-
+                
                 return ApiResposta<CategoriaDto>.Ok(categoriaDto, "Categoria cadastrada com sucesso.");
-
             }
             catch (Exception ex)
             {
@@ -87,25 +85,22 @@ namespace SenacFlix.Application.Servicos.Implementacoes
             {
                 var categoriaExistente = await _repositorio.ObterPorIdAsync(id);
                 if (categoriaExistente == null)
-                    return ApiResposta<CategoriaDto>.Falha("Categoria não encontrada");
+                    return ApiResposta<CategoriaDto>.Falha("Categoria nao encontrada.");
 
                 var todas = await _repositorio.ObterTodasAsync(true);
-                foreach (var c in todas) 
+                foreach (var c in todas)
                 {
-                    //se o Id da categoria em questão for
-                    //diferente do id passado pelo usuario e o nome da categoria for igual 
-                    //será apresentado uma falha dizendo que o nome já é existente
                     if (c.Id != id && c.Nome.Equals(dto.Nome, StringComparison.OrdinalIgnoreCase))
-                        return ApiResposta<CategoriaDto>.Falha("Já existe outra categoria com este nome");
+                        return ApiResposta<CategoriaDto>.Falha("Já existe outra categoria com este nome.");
                 }
+
                 _mapper.Map(dto, categoriaExistente);
                 categoriaExistente.DataAtualizacao = DateTime.UtcNow;
 
                 await _repositorio.AtualizarAsync(categoriaExistente);
-
+                
                 var categoriaDto = _mapper.Map<CategoriaDto>(categoriaExistente);
                 return ApiResposta<CategoriaDto>.Ok(categoriaDto, "Categoria atualizada com sucesso.");
-
             }
             catch (Exception ex)
             {
@@ -119,32 +114,31 @@ namespace SenacFlix.Application.Servicos.Implementacoes
             {
                 var categoria = await _repositorio.ObterPorIdAsync(id);
                 if (categoria == null)
-                    return ApiResposta<bool>.Falha("Categoria não encontrada");
+                    return ApiResposta<bool>.Falha("Categoria nao encontrada.");
 
                 await _repositorio.DesativarAsync(id);
                 return ApiResposta<bool>.Ok(true, "Categoria desativada com sucesso.");
-
             }
             catch (Exception ex)
             {
-                return ApiResposta<bool>.Falha($"Erro ao desativar a categoria {ex.Message}");
+                return ApiResposta<bool>.Falha($"Erro ao desativar categoria: {ex.Message}");
             }
         }
+
         public async Task<ApiResposta<bool>> ReativarAsync(int id)
         {
             try
             {
                 var categoria = await _repositorio.ObterPorIdAsync(id);
                 if (categoria == null)
-                    return ApiResposta<bool>.Falha("Categoria não encontrada");
+                    return ApiResposta<bool>.Falha("Categoria nao encontrada.");
 
                 await _repositorio.ReativarAsync(id);
                 return ApiResposta<bool>.Ok(true, "Categoria reativada com sucesso.");
-
             }
             catch (Exception ex)
             {
-                return ApiResposta<bool>.Falha($"Erro ao reativar a categoria {ex.Message}");
+                return ApiResposta<bool>.Falha($"Erro ao reativar categoria: {ex.Message}");
             }
         }
 
@@ -154,24 +148,20 @@ namespace SenacFlix.Application.Servicos.Implementacoes
             {
                 var categoria = await _repositorio.ObterPorIdAsync(id);
                 if (categoria == null)
-                    return ApiResposta<bool>.Falha("Categoria não encontrada");
+                    return ApiResposta<bool>.Falha("Categoria nao encontrada.");
 
-                //verifica se existe algum filme na categoria
                 if (categoria.Filmes != null && categoria.Filmes.Any(f => !f.Ativo || f.Ativo))
                 {
-                    return ApiResposta<bool>.Falha("Não é possivel excluir uma categoria que contenha algum filme.");
+                    return ApiResposta<bool>.Falha("Não é possível excluir uma categoria que esteja sendo utilizada por algum filme.");
                 }
 
                 await _repositorio.ExcluirPermanentementeAsync(id);
-                return ApiResposta<bool>.Ok(true, "Categoria excluída com sucesso.");
-
-
+                return ApiResposta<bool>.Ok(true, "Categoria excluida permanentemente com sucesso.");
             }
             catch (Exception ex)
             {
-                return ApiResposta<bool>.Falha($"Erro ao excluir a categoria {ex.Message}");
+                return ApiResposta<bool>.Falha($"Erro ao excluir categoria: {ex.Message}");
             }
         }
-
     }
 }

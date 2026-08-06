@@ -6,13 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Application\DependencyInjection.cs" Link="DependencyInjection.cs" />
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Application\Servicos\Implementacoes\ClassificacaoServico.cs" Link="Servicos\Implementacoes\ClassificacaoServico.cs" />
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Application\Servicos\Implementacoes\EstatisticasServico.cs" Link="Servicos\Implementacoes\EstatisticasServico.cs" />
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Application\Servicos\Implementacoes\FavoritoServico.cs" Link="Servicos\Implementacoes\FavoritoServico.cs" />
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Application\Servicos\Implementacoes\FilmeServico.cs" Link="Servicos\Implementacoes\FilmeServico.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />

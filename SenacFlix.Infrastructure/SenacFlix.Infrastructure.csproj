@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\luanps2\SenacFlix-full\SenacFlix.Infrastructure\Dados\SeedDados.cs" Link="Dados\SeedDados.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
@@ -23,5 +19,9 @@
     <ProjectReference Include="..\SenacFlix.Application\SenacFlix.Application.csproj" />
     <ProjectReference Include="..\SenacFlix.Domain\SenacFlix.Domain.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
 </Project>

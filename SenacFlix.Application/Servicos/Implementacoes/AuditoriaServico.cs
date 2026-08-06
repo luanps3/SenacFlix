@@ -1,8 +1,11 @@
-﻿// Nome do arquivo: AuditoriaServico.cs
+// Nome do arquivo: AuditoriaServico.cs
 // Objetivo: Implementacao do servico de auditoria
 // Camada: Application
 // Como participa: Registra e retorna logs do sistema
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using SenacFlix.Application.DTOs;
 using SenacFlix.Application.Servicos.Interfaces;
@@ -16,7 +19,6 @@ namespace SenacFlix.Application.Servicos.Implementacoes
         private readonly IAuditoriaRepositorio _repositorio;
         private readonly IMapper _mapper;
 
-        //Injeção de Dependencia
         public AuditoriaServico(IAuditoriaRepositorio repositorio, IMapper mapper)
         {
             _repositorio = repositorio;
@@ -51,7 +53,5 @@ namespace SenacFlix.Application.Servicos.Implementacoes
 
             await _repositorio.RegistrarAsync(auditoria);
         }
-
-
     }
 }
