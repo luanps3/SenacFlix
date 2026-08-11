@@ -16,7 +16,6 @@
     <Folder Include="Areas\Cliente\Controllers\" />
     <Folder Include="Areas\Cliente\Views\Catalogo\" />
     <Folder Include="Areas\Cliente\Views\Favoritos\" />
-    <Folder Include="ViewModels\" />
     <Folder Include="ViewComponents\" />
   </ItemGroup>
 
