@@ -13,7 +13,6 @@ using SenacFlix.Application.Servicos.Interfaces;
 
 namespace SenacFlix.API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriasController : ControllerBase
@@ -35,7 +34,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpGet("todas")]
-        [Authorize(Roles = "Admin,Operador")]
         public async Task<IActionResult> ObterTodas()
         {
             var resposta = await _categoriaServico.ObterTodasAsync(incluirInativas: true);
@@ -51,7 +49,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Operador")]
         public async Task<IActionResult> Cadastrar([FromBody] CriarCategoriaDto dto)
         {
             var resposta = await _categoriaServico.CadastrarAsync(dto);
@@ -60,7 +57,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Operador")]
         public async Task<IActionResult> Atualizar(int id, [FromBody] CriarCategoriaDto dto)
         {
             var resposta = await _categoriaServico.AtualizarAsync(id, dto);
@@ -69,7 +65,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpDelete("{id}/desativar")]
-        [Authorize(Roles = "Admin,Operador")]
         public async Task<IActionResult> Desativar(int id)
         {
             var resposta = await _categoriaServico.DesativarAsync(id);
@@ -78,7 +73,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpPut("{id}/reativar")]
-        [Authorize(Roles = "Admin,Operador")]
         public async Task<IActionResult> Reativar(int id)
         {
             var resposta = await _categoriaServico.ReativarAsync(id);
@@ -87,7 +81,6 @@ namespace SenacFlix.API.Controllers
         }
 
         [HttpDelete("{id}/permanente")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ExcluirPermanente(int id)
         {
             var resposta = await _categoriaServico.ExcluirPermanentementeAsync(id);
