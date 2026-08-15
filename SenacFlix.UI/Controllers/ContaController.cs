@@ -140,6 +140,20 @@ namespace SenacFlix.API.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> Sair()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            Response.Cookies.Delete("senacflix_token");
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AcessoNegado()
+        {
+            return View();
+        }
+
 
 
 
