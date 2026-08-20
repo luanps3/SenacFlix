@@ -1,0 +1,125 @@
+@model SenacFlix.UI.ViewModels.FilmeViewModel
+
+@if (Model != null)
+{
+    <section class="hero-banner-netflix">
+        <!-- Banner Image -->
+        <img src="@Model.ImagemBannerUrl" alt="@Model.Titulo" class="hero-banner-bg" id="heroBannerImg" />
+
+        <!-- Trailer Iframe (Hidden initially) -->
+        <div class="hero-banner-video" id="heroTrailerContainer"></div>
+
+        <div class="hero-banner-vignette"></div>
+
+        <div class="hero-banner-content">
+            <h1 class="hero-banner-title">@Model.Titulo</h1>
+            
+            <div class="hero-banner-meta">
+                <span class="text-success">Novo</span>
+                <span>@Model.AnoLancamento</span>
+                <span class="badge" style="background-color: @Model.ClassificacaoCor">@Model.ClassificacaoNome</span>
+                <span>@Model.DuracaoFormatada</span>
+                <span>@Model.CategoriaNome</span>
+            </div>
+
+            <p class="hero-banner-synopsis">@Model.Descricao</p>
+
+            <div class="hero-detalhes-actions mt-3">
+                <a asp-action="Assistir" asp-controller="Catalogo" asp-area="Cliente" asp-route-id="@Model.Id" class="btn-nf-play">
+                    <i class="fa fa-play"></i> Assistir
+                </a>
+                <a asp-action="Detalhes" asp-controller="Catalogo" asp-area="Cliente" asp-route-id="@Model.Id" class="btn-nf-secondary">
+                    <i class="fa fa-info-circle"></i> Mais informações
+                </a>
+            </div>
+        </div>
+
+        <!-- Controles extras ao passar o mouse -->
+        <div class="hero-banner-controls">
+            <button id="btnHeroMute" class="btn-hero-control" title="Mutar/Desmutar">
+                <i class="fa fa-volume-mute"></i>
+            </button>
+            <button id="btnHeroRestart" class="btn-hero-control" title="Reiniciar Trailer">
+                <i class="fa fa-redo"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- Guardando URL do trailer para o JS -->
+    <input type="hidden" id="heroTrailerUrl" value="@Model.UrlEmbedTrailer" />
+
+    <script>
+    (function () {
+        'use strict';
+        
+        // Configura o banner quando o DOM estiver pronto (já que o script renderiza com o partial)
+        document.addEventListener("DOMContentLoaded", function() {
+            const heroTrailerUrl = document.getElementById('heroTrailerUrl');
+            const heroTrailerContainer = document.getElementById('heroTrailerContainer');
+            const heroBannerImg = document.getElementById('heroBannerImg');
+            const btnHeroMute = document.getElementById('btnHeroMute');
+            const btnHeroRestart = document.getElementById('btnHeroRestart');
+            
+            let isMuted = true;
+            let iframeEl = null;
+
+            if (heroTrailerUrl && heroTrailerContainer && heroBannerImg) {
+                let url = heroTrailerUrl.value;
+                if (url) {
+                    // Ajustar a URL para o autoplay silencioso com a API do YouTube
+                    url += url.includes('?') ? '&' : '?';
+                    url += 'autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&enablejsapi=1';
+
+                    // Carregar o iframe após 1 segundo invisível, e mostrar depois de 5s
+                    setTimeout(() => {
+                        iframeEl = document.createElement('iframe');
+                        iframeEl.src = url;
+                        iframeEl.allow = 'autoplay; encrypted-media';
+                        iframeEl.style.opacity = '0'; // inicia oculto
+                        iframeEl.style.transition = 'opacity 1.5s ease-in-out';
+                        heroTrailerContainer.appendChild(iframeEl);
+
+                        // Quando o iframe carregar, aguardar um tempo e fazer a transição
+                        iframeEl.onload = () => {
+                            setTimeout(() => {
+                                // Faz a transição de fade: mostra o vídeo e esconde um pouco a imagem
+                                iframeEl.style.opacity = '1';
+                                heroBannerImg.style.opacity = '0';
+                            }, 4000); // 4 segundos + 1 do setTimeout inicial = ~5s de delay
+                        };
+                    }, 1000);
+                    
+                    // Lógica do botão Mute
+                    if (btnHeroMute) {
+                        btnHeroMute.addEventListener('click', () => {
+                            if (!iframeEl || !iframeEl.contentWindow) return;
+                            isMuted = !isMuted;
+                            
+                            // Envia comando para a API do YouTube
+                            iframeEl.contentWindow.postMessage('{"event":"command","func":"' + (isMuted ? 'mute' : 'unMute') + '","args":""}', '*');
+                            
+                            const icon = btnHeroMute.querySelector('i');
+                            if (isMuted) {
+                                icon.classList.remove('fa-volume-up');
+                                icon.classList.add('fa-volume-mute');
+                            } else {
+                                icon.classList.remove('fa-volume-mute');
+                                icon.classList.add('fa-volume-up');
+                            }
+                        });
+                    }
+
+                    // Lógica do botão Restart
+                    if (btnHeroRestart) {
+                        btnHeroRestart.addEventListener('click', () => {
+                            if (!iframeEl || !iframeEl.contentWindow) return;
+                            iframeEl.contentWindow.postMessage('{"event":"command","func":"seekTo","args":[0, true]}', '*');
+                            iframeEl.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        });
+                    }
+                }
+            }
+        });
+    })();
+    </script>
+}

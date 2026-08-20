@@ -1,0 +1,66 @@
+﻿@model SenacFlix.UI.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Entrar — SenacFlix";
+}
+
+<div class="row justify-content-center" style="padding-top: 6rem;">
+    <div class="col-md-5 col-sm-10">
+        <div class="auth-card card shadow-lg">
+            <div class="card-body">
+
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                    <img src="~/images/logo.png" alt="SenacFlix" class="auth-logo" />
+                </div>
+
+                <h2 class="fw-bold text-center mb-4">Entrar</h2>
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email"
+                               class="form-control form-control-lg"
+                               placeholder="E-mail" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Senha" class="form-label"></label>
+                        <input asp-for="Senha"
+                               class="form-control form-control-lg"
+                               placeholder="Senha" />
+                        <span asp-validation-for="Senha" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="LembrarMe" class="form-check-input" />
+                        <label asp-for="LembrarMe" class="form-check-label text-muted"></label>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-senac-orange btn-lg fw-bold">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+
+                <!-- asp-action sem asp-controller subentende que você quer acessar uma view da controller referente a view atual -->
+                <div class="mt-4 text-center">
+                    <p class="text-muted">
+                        Novo por aqui?
+                        <a asp-action="Registrar" class="text-decoration-none fw-bold">
+                            Criar conta
+                        </a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

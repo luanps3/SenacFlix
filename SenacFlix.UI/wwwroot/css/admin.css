@@ -1,0 +1,300 @@
+/* ============================================================
+   Nome do arquivo: admin.css
+   Objetivo: Estilos específicos para o Painel Administrativo
+   Camada: UI / wwwroot
+   ============================================================ */
+
+/* Variáveis para o layout Administrativo */
+:root {
+    --admin-sidebar-width: 260px;
+    --admin-header-height: 70px;
+    --admin-bg: var(--nf-bg);
+    --admin-card-bg: var(--nf-card);
+    --admin-sidebar-bg: #111111;
+    --admin-sidebar-hover: rgba(255, 255, 255, 0.1);
+    --admin-text: var(--nf-text);
+}
+
+[data-bs-theme="light"] {
+    --admin-sidebar-bg: #1a1a2e; /* Sidebar corporativa escurecida */
+}
+
+/* Wrapper Geral */
+.admin-wrapper {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--admin-bg);
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: var(--admin-sidebar-width);
+    background-color: var(--admin-sidebar-bg);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    z-index: 1040;
+    position: relative;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+.admin-sidebar-header {
+    height: var(--admin-header-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.admin-sidebar-header img {
+    height: 38px;
+    object-fit: contain;
+}
+
+.admin-user-profile {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.admin-user-profile img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--senac-orange);
+    margin-bottom: 0.8rem;
+    background-color: var(--nf-card);
+}
+
+.admin-user-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+}
+
+.admin-user-role {
+    font-size: 0.85rem;
+    color: var(--nf-text-muted);
+}
+
+/* Menu de Navegação na Sidebar */
+.admin-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.admin-nav-item:hover, .admin-nav-item.active {
+    background-color: var(--admin-sidebar-hover);
+    color: #fff;
+}
+
+.admin-nav-item.active {
+    border-left-color: var(--senac-orange);
+    color: var(--senac-orange);
+}
+
+.admin-nav-item i {
+    width: 24px;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    text-align: center;
+}
+
+/* Main Content */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header Superior */
+.admin-header {
+    height: var(--admin-header-height);
+    background-color: var(--nf-card);
+    border-bottom: 1px solid var(--nf-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    z-index: 1030;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.admin-header-search {
+    position: relative;
+    width: 300px;
+}
+
+.admin-header-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--nf-text-muted);
+}
+
+.admin-header-search input {
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--nf-border);
+    background-color: var(--nf-bg);
+    color: var(--nf-text);
+    transition: all 0.3s;
+}
+
+.admin-header-search input:focus {
+    border-color: var(--senac-orange);
+    box-shadow: 0 0 0 2px rgba(241, 159, 0, 0.2);
+    outline: none;
+}
+
+.admin-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-header-right .dropdown-toggle::after {
+    display: none;
+}
+
+/* Conteúdo Rolável */
+.admin-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    background-color: var(--admin-bg);
+}
+
+/* Cards Dashboard Modernos */
+.admin-stat-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background-color: var(--nf-card);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.admin-stat-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-right: 1.5rem;
+}
+
+.admin-stat-details h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    color: var(--nf-text);
+}
+
+.admin-stat-details p {
+    color: var(--nf-text-muted);
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+.admin-stat-bg-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -15px;
+    font-size: 6rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+}
+
+/* Badge de Tabela Moderno */
+.table-modern {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    width: 100%;
+}
+.table-modern thead th {
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--nf-text-muted);
+    letter-spacing: 0.05em;
+    padding-bottom: 0.5rem;
+}
+.table-modern tbody tr {
+    background-color: var(--nf-card);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+.table-modern tbody tr:hover {
+    transform: scale(1.01);
+}
+.table-modern tbody td {
+    border: none;
+    padding: 1rem;
+    vertical-align: middle;
+}
+.table-modern tbody td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.table-modern tbody td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+/* Offcanvas Mobile */
+.btn-mobile-sidebar {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--nf-text);
+    font-size: 1.5rem;
+}
+
+@media (max-width: 991px) {
+    .admin-sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+    }
+    .admin-sidebar.show {
+        left: 0;
+    }
+    .btn-mobile-sidebar {
+        display: block;
+    }
+    .admin-header-search {
+        display: none;
+    }
+}

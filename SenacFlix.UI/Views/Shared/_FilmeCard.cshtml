@@ -1,0 +1,27 @@
+@model SenacFlix.UI.ViewModels.FilmeViewModel
+
+<!--
+  Componente: _FilmeCard.cshtml
+  Exibe a capa do filme e revela titulo e botao no hover.
+-->
+<div class="filme-card-wrapper fade-in-card" role="button" aria-label="Detalhes de @Model.Titulo" tabindex="0" onclick="window.location.href='@Url.Action("Detalhes", "Catalogo", new { id = Model.Id, area = "Cliente" })'">
+    
+    <!-- Poster / Capa -->
+    <img src="@Model.ImagemCapaUrl" 
+         class="filme-capa" 
+         alt="Capa do filme @Model.Titulo"
+         loading="lazy"
+         decoding="async"
+         onerror="this.src='/images/placeholder.png';" />
+    
+    <!-- Overlay revelado no Hover -->
+    <div class="filme-card-overlay">
+        <div class="filme-card-title">@Model.Titulo</div>
+        <div class="filme-card-meta">
+            <span>@Model.AnoLancamento</span> • <span>@Model.ClassificacaoNome</span>
+        </div>
+        <a asp-controller="Catalogo" asp-action="Detalhes" asp-area="Cliente" asp-route-id="@Model.Id" class="filme-card-btn" tabindex="-1">
+            <i class="fa fa-info-circle me-1"></i> Detalhes
+        </a>
+    </div>
+</div>
