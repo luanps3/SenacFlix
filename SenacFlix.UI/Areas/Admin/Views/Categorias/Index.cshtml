@@ -1,0 +1,131 @@
+﻿@model IEnumerable<SenacFlix.UI.ViewModels.CategoriaViewModel>
+
+@{
+    ViewData["Title"] = "Gerenciar Categorias";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold mb-0" style="color: var(--nf-text);"><i class="fa fa-tags me-2 text-senac-orange"></i>Gerenciar Categorias</h1>
+    <a asp-action="Criar" class="btn btn-success">
+        <i class="fa fa-plus me-1"></i> Nova Categoria
+    </a>
+</div>
+
+<div class="card shadow-sm mb-4" style="background-color: var(--nf-card); border-radius: 12px; border: none;">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-muted"><i class="fa fa-search"></i></span>
+                    <input type="text" id="inputPesquisaCategorias" class="form-control border-secondary text-white bg-transparent" placeholder="Pesquisar categoria por nome..." onkeyup="pesquisarCategorias()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-modern mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Nome</th>
+                        <th>Status</th>
+                        <th>Filmes</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">@item.Id</td>
+                            <td>
+                                <strong>@item.Nome</strong>
+                                @if (!string.IsNullOrEmpty(item.Descricao))
+                                {
+                                    <div class="small text-muted text-truncate" style="max-width: 200px;" title="@item.Descricao">
+                                        @item.Descricao
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Ativo)
+                                {
+                                    <span class="badge bg-success">Ativa</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inativa</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@item.TotalFilmes filmes</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    @if (item.Ativo)
+                                    {
+                                        <form asp-action="Desativar" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('Deseja inativar esta categoria?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Inativar">
+                                                <i class="fa fa-ban"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Reativar" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('Deseja reativar esta categoria?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Reativar">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form asp-action="ExcluirPermanente" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('ATENÇÃO: Deseja realmente excluir PERMANENTEMENTE esta categoria? Isso só funcionará se não houver filmes vinculados.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir Permanentemente">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                Nenhuma categoria cadastrada.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function pesquisarCategorias() {
+            const texto = document.getElementById('inputPesquisaCategorias').value.toLowerCase();
+            const linhas = document.querySelectorAll('.table tbody tr');
+
+            linhas.forEach(linha => {
+                const nome = linha.querySelector('strong')?.innerText.toLowerCase() || '';
+                
+                if (nome.includes(texto)) {
+                    linha.style.display = '';
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+        }
+    </script>
+}

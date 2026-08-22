@@ -1,0 +1,395 @@
+@model SenacFlix.UI.ViewModels.FilmeViewModel
+@{
+    Layout = null; // Remove o layout padrão para a tela de player ficar fullscreen
+}
+
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assistir @Model.Titulo - SenacFlix</title>
+    <meta name="description" content="Assista @Model.Titulo no SenacFlix." />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- SenacFlix CSS -->
+    <link rel="stylesheet" href="~/css/senacflix.css" />
+
+    <style>
+        /* ── Página do Player ─────────────────────────────────── */
+        body.player-page {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar minimalista ───────────────────────────────── */
+        .player-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+            transition: opacity 0.4s ease;
+        }
+        .player-navbar.idle { opacity: 0; pointer-events: none; }
+        .player-nav-left { display: flex; align-items: center; gap: 16px; }
+        .player-back-btn {
+            color: #fff;
+            font-size: 1.2rem;
+            text-decoration: none;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: background 0.2s;
+        }
+        .player-back-btn:hover { background: rgba(255,255,255,0.3); color: #fff; }
+
+        /* ── Wrapper do player — ocupa 95% da largura ─────────── */
+        .player-wrapper {
+            padding-top: 60px; /* espaço para navbar fixed */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Container do iframe: 100% da largura, aspect-ratio 16:9 */
+        .player-video-container {
+            width: 100vw;
+            max-width: none;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: none;
+            transition: all 0.3s ease;
+        }
+
+        /* O iframe/video ocupa 100% do container */
+        .player-video-container iframe,
+        .player-video-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* ── Informações abaixo do player ─────────────────────── */
+        .player-info-section {
+            width: 100%;
+            max-width: 1320px;
+            margin: 32px auto 0;
+            padding: 0 15px 40px;
+        }
+
+        .player-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .player-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .player-meta .badge-rating {
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #adb5bd;
+        }
+
+        .player-meta .badge-year,
+        .player-meta .badge-cat,
+        .player-meta .badge-dur {
+            font-size: 0.9rem;
+            color: #adb5bd;
+        }
+
+        .player-synopsis {
+            font-size: 1.05rem;
+            color: #ccc;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            max-width: 900px;
+        }
+
+        .player-details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+
+        .player-details-row span strong {
+            color: #fff;
+        }
+
+        /* ── Filmes relacionados ──────────────────────────────── */
+        .player-related-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .player-related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .player-related-card {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .player-related-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        }
+        .player-related-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            display: block;
+        }
+        .player-related-card .related-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85));
+            padding: 8px 6px 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* ── Responsividade ──────────────────────────────────── */
+        @@media (max-width: 768px) {
+            .player-video-container,
+            .player-info-section {
+                width: 100vw;
+                border-radius: 0;
+            }
+            .player-title { font-size: 1.4rem; }
+            .player-related-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        }
+    </style>
+</head>
+<body class="player-page">
+
+    <!-- ── Navbar Minimalista (Some após 3s sem movimento) ──────────────── -->
+    <nav class="player-navbar" id="playerNavbar">
+        <div class="player-nav-left">
+            <a href="@Url.Action("Detalhes", "Catalogo", new { id = Model.Id, area = "Cliente" })"
+               class="player-back-btn" title="Voltar para os detalhes">
+                <i class="fa fa-arrow-left"></i>
+            </a>
+            <img src="~/images/logo.png" alt="SenacFlix" style="height: 32px;" />
+        </div>
+        <div class="player-nav-right text-white fw-bold fs-6 pe-2">
+            @Model.Titulo
+        </div>
+    </nav>
+
+    <!-- ── Wrapper principal ─────────────────────────────────────────────── -->
+    <div class="player-wrapper">
+
+        <!-- ── Player de Vídeo: 95% da largura, 16:9 ─────────────────────── -->
+        <div class="player-video-container" id="playerVideoContainer">
+            @{
+                // Determina a URL de embed correta para autoplay
+                // O vídeo inicia automaticamente mudo (mute=1) para contornar
+                // a política de autoplay dos navegadores modernos.
+                // O usuário pode ativar o som clicando no controle do player.
+                string embedUrl = string.Empty;
+
+                if (!string.IsNullOrEmpty(Model.VideoYoutubeUrl))
+                {
+                    embedUrl = Model.VideoYoutubeUrl;
+                }
+                else if (!string.IsNullOrEmpty(Model.TrailerYoutubeUrl))
+                {
+                    embedUrl = Model.TrailerYoutubeUrl;
+                }
+
+                // Normaliza para formato embed
+                if (embedUrl.Contains("watch?v="))
+                {
+                    var videoId = embedUrl.Split("watch?v=")[1].Split("&")[0];
+                    embedUrl = $"https://www.youtube.com/embed/{videoId}";
+                }
+                else if (embedUrl.Contains("youtu.be/"))
+                {
+                    var videoId = embedUrl.Split("youtu.be/")[1].Split("?")[0];
+                    embedUrl = $"https://www.youtube.com/embed/{videoId}";
+                }
+
+                // Adiciona parâmetros de autoplay:
+                // autoplay=1 — inicia automaticamente
+                // mute=1     — mudo por padrão (navegadores exigem para autoplay)
+                // rel=0      — não mostra vídeos relacionados do YouTube ao final
+                // modestbranding=1 — minimiza branding do YouTube
+                if (!string.IsNullOrEmpty(embedUrl) && embedUrl.Contains("youtube.com/embed"))
+                {
+                    var sep = embedUrl.Contains("?") ? "&" : "?";
+                    embedUrl = $"{embedUrl}{sep}autoplay=1&rel=0&modestbranding=1";
+                }
+            }
+
+            @if (!string.IsNullOrEmpty(embedUrl) && embedUrl.Contains("youtube.com/embed"))
+            {
+                <!-- Iframe do YouTube com autoplay sonoro -->
+                <iframe id="playerIframe"
+                        src="@embedUrl"
+                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                        allowfullscreen
+                        title="Assistir @Model.Titulo"></iframe>
+            }
+            else if (!string.IsNullOrEmpty(embedUrl))
+            {
+                <!-- Fallback para vídeo MP4 com autoplay -->
+                <video id="playerVideo" controls autoplay style="width:100%;height:100%;background:#000;">
+                    <source src="@embedUrl" type="video/mp4" />
+                    Seu navegador não suporta reprodução de vídeo.
+                </video>
+            }
+            else
+            {
+                <!-- Sem vídeo disponível -->
+                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                    <i class="fa fa-film fa-4x mb-3"></i>
+                    <p>Conteúdo não disponível para reprodução.</p>
+                </div>
+            }
+        </div>
+
+        <!-- ── Informações do Filme ────────────────────────────────────────── -->
+        <div class="player-info-section">
+
+            <!-- Título e meta -->
+            <h1 class="player-title">@Model.Titulo</h1>
+
+            <div class="player-meta">
+                <span class="badge-year">@Model.AnoLancamento</span>
+                @if (!string.IsNullOrEmpty(Model.CategoriaNome))
+                {
+                    <span class="badge bg-secondary">@Model.CategoriaNome</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.ClassificacaoNome))
+                {
+                    <span class="badge-rating">@Model.ClassificacaoNome</span>
+                }
+                <span class="badge-dur"><i class="fa fa-clock fa-sm me-1"></i>@Model.DuracaoFormatada</span>
+            </div>
+
+            <!-- Sinopse -->
+            <p class="player-synopsis">@Model.Descricao</p>
+
+            <!-- Diretor e Elenco -->
+            <div class="player-details-row">
+                @if (!string.IsNullOrEmpty(Model.Diretor))
+                {
+                    <span><strong>Direção:</strong> @Model.Diretor</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Elenco))
+                {
+                    <span><strong>Elenco:</strong> @Model.Elenco</span>
+                }
+            </div>
+
+            <!-- Linha divisória -->
+            <hr style="border-color: rgba(255,255,255,0.1);" />
+
+            <!-- Filmes Relacionados -->
+            @if (ViewBag.Relacionados != null)
+            {
+                var relacionados = (IEnumerable<SenacFlix.UI.ViewModels.FilmeViewModel>)ViewBag.Relacionados;
+                var listaRelac   = relacionados.ToList();
+
+                if (listaRelac.Any())
+                {
+                    <h2 class="player-related-title">Títulos Semelhantes</h2>
+                    <div class="player-related-grid">
+                        @foreach (var r in listaRelac)
+                        {
+                            <a href="@Url.Action("Assistir", "Catalogo", new { id = r.Id, area = "Cliente" })"
+                               class="player-related-card text-decoration-none text-white"
+                               title="Assistir @r.Titulo">
+                                @if (!string.IsNullOrEmpty(r.ImagemCapaUrl))
+                                {
+                                    <img src="@r.ImagemCapaUrl" alt="@r.Titulo" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div style="width:100%;aspect-ratio:2/3;background:#222;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fa fa-film fa-2x text-muted"></i>
+                                    </div>
+                                }
+                                <div class="related-overlay">@r.Titulo</div>
+                            </a>
+                        }
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+
+    <!-- ── Scripts ───────────────────────────────────────────────────────── -->
+    <script>
+        // ── Comportamento da navbar: some após 3s de inatividade ─────────────
+        let navbarTimeout;
+        const navbar = document.getElementById('playerNavbar');
+
+        function resetNavbarTimer() {
+            navbar.classList.remove('idle');
+            clearTimeout(navbarTimeout);
+            navbarTimeout = setTimeout(() => {
+                navbar.classList.add('idle');
+            }, 3000);
+        }
+
+        document.addEventListener('mousemove', resetNavbarTimer);
+        document.addEventListener('touchstart', resetNavbarTimer);
+
+        // Inicia timer de navbar ao carregar
+        resetNavbarTimer();
+
+        // ── Para vídeo HTML5: garante que começa a reproduzir ────────────────
+        const video = document.getElementById('playerVideo');
+        if (video) {
+            video.play().catch(() => {
+                // Navegador bloqueou autoplay — o usuário precisará clicar
+                video.muted = true;
+                video.play();
+            });
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

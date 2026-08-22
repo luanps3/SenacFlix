@@ -1,0 +1,122 @@
+@model IEnumerable<SenacFlix.UI.ViewModels.UsuarioViewModel>
+@{
+    ViewData["Title"] = "Gerenciar Usuários";
+    var administradores = Model.Where(u => u.Perfis.Contains("Admin")).ToList();
+    var operadores = Model.Where(u => u.Perfis.Contains("Operador") && !u.Perfis.Contains("Admin")).ToList();
+    var clientes = Model.Where(u => !u.Perfis.Contains("Admin") && !u.Perfis.Contains("Operador")).ToList();
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-4 border-bottom border-secondary border-opacity-25">
+    <h1 class="h2 fw-bold mb-0" style="color: var(--nf-text);">
+        <i class="fa fa-users me-2 text-senac-orange"></i>Gerenciar Usuários
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <!-- Direciona para a tela de registro publica -->
+        <a asp-area="" asp-controller="Conta" asp-action="Registrar" class="btn btn-senac-orange d-flex align-items-center gap-2">
+            <i class="fa fa-user-plus"></i> Novo Usuário
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4" style="background-color: var(--nf-card); border-radius: 12px; border: none;">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-muted"><i class="fa fa-search"></i></span>
+                    <input type="text" id="inputPesquisaUsuarios" class="form-control border-secondary text-white bg-transparent" placeholder="Pesquisar por nome ou e-mail..." onkeyup="pesquisarUsuarios()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4" style="background-color: var(--nf-card); border-radius: 12px;">
+    <div class="card-header border-bottom border-secondary border-opacity-25 bg-transparent p-0">
+        <ul class="nav nav-tabs nav-justified" id="userTabs" role="tablist" style="border-bottom: none;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold py-3 border-0" style="color: var(--nf-text);" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-pane" type="button" role="tab">
+                    <i class="fa fa-user-shield me-2 text-primary"></i> Administradores
+                    <span class="badge bg-primary ms-2 rounded-pill">@administradores.Count</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold py-3 border-0" style="color: var(--nf-text);" id="operador-tab" data-bs-toggle="tab" data-bs-target="#operador-pane" type="button" role="tab">
+                    <i class="fa fa-user-cog me-2 text-secondary"></i> Operadores
+                    <span class="badge bg-secondary ms-2 rounded-pill">@operadores.Count</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold py-3 border-0" style="color: var(--nf-text);" id="cliente-tab" data-bs-toggle="tab" data-bs-target="#cliente-pane" type="button" role="tab">
+                    <i class="fa fa-user me-2 text-info"></i> Clientes
+                    <span class="badge bg-info text-dark ms-2 rounded-pill">@clientes.Count</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card-body p-0">
+        <div class="tab-content" id="userTabsContent">
+            
+            <!-- Aba Administradores -->
+            <div class="tab-pane fade show active" id="admin-pane" role="tabpanel" tabindex="0">
+                <div class="table-responsive">
+                    @await Html.PartialAsync("_TabelaUsuarios", administradores)
+                </div>
+            </div>
+            
+            <!-- Aba Operadores -->
+            <div class="tab-pane fade" id="operador-pane" role="tabpanel" tabindex="0">
+                <div class="table-responsive">
+                    @await Html.PartialAsync("_TabelaUsuarios", operadores)
+                </div>
+            </div>
+            
+            <!-- Aba Clientes -->
+            <div class="tab-pane fade" id="cliente-pane" role="tabpanel" tabindex="0">
+                <div class="table-responsive">
+                    @await Html.PartialAsync("_TabelaUsuarios", clientes)
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos das abas customizadas (Netflix/Senac) */
+    .nav-tabs .nav-link {
+        border-bottom: 3px solid transparent !important;
+        opacity: 0.6;
+        transition: all 0.3s;
+    }
+    .nav-tabs .nav-link:hover {
+        opacity: 0.8;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: transparent !important;
+        opacity: 1;
+        border-bottom: 3px solid var(--senac-orange) !important;
+        color: var(--senac-orange) !important;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function pesquisarUsuarios() {
+            const texto = document.getElementById('inputPesquisaUsuarios').value.toLowerCase();
+            const linhas = document.querySelectorAll('.table tbody tr');
+
+            linhas.forEach(linha => {
+                const nome = linha.querySelector('.fw-bold')?.innerText.toLowerCase() || '';
+                const email = linha.querySelector('.text-muted.small')?.innerText.toLowerCase() || '';
+                
+                if (nome.includes(texto) || email.includes(texto)) {
+                    linha.style.display = '';
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+        }
+    </script>
+}

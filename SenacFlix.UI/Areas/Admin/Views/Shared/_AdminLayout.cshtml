@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SenacFlix Admin</title>
+    <link rel="icon" type="image/png" href="~/images/logo.png" />
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <!-- Design System SenacFlix e Admin -->
+    <link rel="stylesheet" href="~/css/senacflix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <!-- Script de Tema -->
+    <script src="~/js/theme.js"></script>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-wrapper">
+        
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <img src="~/images/logo.png" alt="SenacFlix" />
+            </div>
+            
+            <div class="admin-user-profile">
+                @{
+                    var fotoClaim = User.Claims.FirstOrDefault(c => c.Type == "FotoPerfil")?.Value;
+                }
+                @if (!string.IsNullOrEmpty(fotoClaim))
+                {
+                    <img src="@fotoClaim" alt="Avatar" />
+                }
+                else
+                {
+                    <!-- Avatar Padrão -->
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background: #444; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--senac-orange); margin-bottom: 0.8rem;">
+                        <i class="fa fa-user fa-2x text-white"></i>
+                    </div>
+                }
+                <div class="admin-user-name">@User.Identity?.Name</div>
+                <div class="admin-user-role">
+                    @if(User.IsInRole("Admin")) { <text>Administrador</text> }
+                    else if(User.IsInRole("Operador")) { <text>Operador</text> }
+                    else { <text>Usuário</text> }
+                </div>
+            </div>
+
+            <nav class="admin-nav d-flex flex-column gap-1">
+                <a class="admin-nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "active" : "")" 
+                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="fa fa-home"></i> Dashboard
+                </a>
+                
+                <a class="admin-nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Filmes" ? "active" : "")" 
+                   asp-area="Admin" asp-controller="Filmes" asp-action="Index">
+                    <i class="fa fa-film"></i> Gerenciar Filmes
+                </a>
+                
+                <a class="admin-nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Categorias" ? "active" : "")" 
+                   asp-area="Admin" asp-controller="Categorias" asp-action="Index">
+                    <i class="fa fa-tags"></i> Gerenciar Categorias
+                </a>
+
+                <a class="admin-nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuarios" ? "active" : "")" 
+                   asp-area="Admin" asp-controller="Usuarios" asp-action="Index">
+                    <i class="fa fa-users"></i> Gerenciar Usuários
+                </a>
+
+                <div class="mt-auto pt-3">
+                    <a class="admin-nav-item" asp-area="" asp-controller="Perfil" asp-action="Index">
+                        <i class="fa fa-user-edit"></i> Meu Perfil
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Área Principal (Main) -->
+        <main class="admin-main">
+            <!-- Header Superior -->
+            <header class="admin-header">
+                <div class="d-flex align-items-center">
+                    <button class="btn-mobile-sidebar me-3" id="btnToggleSidebar">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="admin-header-right">
+                    <!-- Tema Toggle -->
+                    <a href="#" id="themeToggleBtn" class="nav-link d-flex align-items-center justify-content-center" title="Alternar Tema" style="width:36px; height:36px; border-radius:50%; background:rgba(150,150,150,0.1);">
+                        <i id="themeToggleIcon" class="fa fa-moon"></i>
+                    </a>
+                    
+                    <!-- Dropdown Perfil -->
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle d-flex align-items-center text-decoration-none text-reset" data-bs-toggle="dropdown">
+                            @if (!string.IsNullOrEmpty(fotoClaim))
+                            {
+                                <img src="@fotoClaim" alt="Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <i class="fa fa-user-circle fa-lg me-2"></i>
+                            }
+                            <span class="d-none d-sm-inline fw-semibold">@User.Identity?.Name</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item py-2" asp-area="" asp-controller="Perfil" asp-action="Index">
+                                    <i class="fa fa-user-edit me-2 text-muted"></i> Meu Perfil
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-area="" asp-controller="Conta" asp-action="Sair" method="post">
+                                    <button type="submit" class="dropdown-item py-2 text-danger">
+                                        <i class="fa fa-sign-out-alt me-2"></i> Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Conteúdo Scrollável -->
+            <div class="admin-content">
+                @if (TempData["Sucesso"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fa fa-check-circle me-2"></i> @TempData["Sucesso"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Erro"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="fa fa-exclamation-triangle me-2"></i> @TempData["Erro"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts Base -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para Toggle Mobile da Sidebar -->
+    <script>
+        document.getElementById('btnToggleSidebar')?.addEventListener('click', function() {
+            document.getElementById('adminSidebar').classList.toggle('show');
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

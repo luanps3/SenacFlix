@@ -1,0 +1,170 @@
+@model SenacFlix.UI.ViewModels.FilmeViewModel
+@{
+    ViewData["Title"] = Model.Titulo;
+    ViewData["FullScreen"] = true;
+    ViewData["NavbarClass"] = "navbar-transparent";
+}
+
+<!--
+  Componente: Detalhes.cshtml
+  Exibe os detalhes do filme com hero banner fullscreen (estilo Netflix)
+-->
+
+<!-- ── HERO DETALHES ──────────────────────────────────────── -->
+<section class="hero-detalhes" style="background-image: url('@Model.ImagemBannerUrl'); position: relative; overflow: hidden;">
+    
+    @{
+        // Prepara a URL de embed do YouTube (mudo, autoplay e loop em background)
+        string bgVideoUrl = string.Empty;
+        if (!string.IsNullOrEmpty(Model.TrailerYoutubeUrl))
+            bgVideoUrl = Model.TrailerYoutubeUrl;
+        else if (!string.IsNullOrEmpty(Model.VideoYoutubeUrl))
+            bgVideoUrl = Model.VideoYoutubeUrl;
+            
+        if (!string.IsNullOrEmpty(bgVideoUrl))
+        {
+            string videoId = "";
+            if (bgVideoUrl.Contains("watch?v="))
+                videoId = bgVideoUrl.Split("watch?v=")[1].Split("&")[0];
+            else if (bgVideoUrl.Contains("youtu.be/"))
+                videoId = bgVideoUrl.Split("youtu.be/")[1].Split("?")[0];
+            else if (bgVideoUrl.Contains("youtube.com/embed/"))
+                videoId = bgVideoUrl.Split("youtube.com/embed/")[1].Split("?")[0];
+                
+            if (!string.IsNullOrEmpty(videoId))
+            {
+                bgVideoUrl = $"https://www.youtube.com/embed/{videoId}?autoplay=1&mute=1&loop=1&playlist={videoId}&controls=0&showinfo=0&rel=0&modestbranding=1";
+            }
+        }
+    }
+
+    @if (!string.IsNullOrEmpty(bgVideoUrl) && bgVideoUrl.Contains("youtube.com/embed"))
+    {
+        <iframe class="hero-detalhes-video"
+                src="@bgVideoUrl" 
+                allow="autoplay; encrypted-media" 
+                frameborder="0"
+                tabindex="-1"></iframe>
+    }
+
+    <!-- Overlay com gradiente escuro e blur -->
+    <div class="hero-detalhes-mask" style="z-index: 1;"></div>
+    
+    <!-- Estilo para o vídeo cobrir o fundo -->
+    <style>
+        .hero-detalhes-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw; /* Proporção 16:9 */
+            min-height: 100vh;
+            min-width: 177.77vh; /* Proporção 16:9 */
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 1; /* O vídeo cobre totalmente a imagem de fundo para não ficarem sobrepostos */
+        }
+        .hero-detalhes-content {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+
+    <div class="hero-detalhes-content">
+        <h1 class="hero-detalhes-title">@Model.Titulo</h1>
+
+        <div class="hero-detalhes-meta">
+            <span class="match">98% Relevante</span>
+            <span>@Model.AnoLancamento</span>
+            <span class="rating">@Model.ClassificacaoNome</span>
+            <span>@Model.DuracaoFormatada</span>
+        </div>
+
+        <p class="hero-detalhes-synopsis">
+            @Model.Descricao
+        </p>
+
+        <div class="hero-detalhes-actions">
+            <!-- Botão Assistir / Player -->
+            <a asp-action="Assistir" asp-route-id="@Model.Id" class="btn btn-nf-play rounded">
+                <i class="fa fa-play"></i> Assistir
+            </a>
+
+            <!-- Botão Trailer. Como vamos colocar no player também, o trailer pode rolar pra baixo ou abrir modal. -->
+            <!-- O player unificado vai tocar trailer e filme. Vamos direcionar pro player e passar que é trailer? -->
+            <!-- O método Assistir toca o filme ou trailer. -->
+
+            <!-- Form Favoritar / Remover -->
+            @if (Model.EhFavorito)
+            {
+                <form asp-controller="Favoritos" asp-action="Remover" asp-route-filmeId="@Model.Id" method="post" class="d-inline">
+                    <input type="hidden" name="redirectUrl" value="@Url.Action("Detalhes", "Catalogo", new { id = Model.Id, area = "Cliente" })" />
+                    <button type="submit" class="btn btn-nf-secondary rounded" title="Remover dos Favoritos">
+                        <i class="fa fa-heart text-danger"></i> Favoritado
+                    </button>
+                </form>
+            }
+            else
+            {
+                <form asp-controller="Favoritos" asp-action="Adicionar" asp-route-filmeId="@Model.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-nf-secondary rounded" title="Adicionar aos Favoritos">
+                        <i class="fa fa-plus"></i> Minha Lista
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ── INFORMAÇÕES ADICIONAIS ─────────────────────────────── -->
+<div class="container py-5">
+    <div class="row">
+        <!-- Detalhes à esquerda -->
+        <div class="col-md-8">
+            <h3 class="fw-bold mb-3">Sobre o Filme</h3>
+            <p class="text-muted fs-5 mb-4">@Model.Descricao</p>
+
+            <div class="d-flex flex-column gap-2 text-muted">
+                <div><span class="text-white fw-bold">Direção:</span> @Model.Diretor</div>
+                <div><span class="text-white fw-bold">Elenco:</span> @Model.Elenco</div>
+            </div>
+        </div>
+        
+        <!-- Sidebar à direita -->
+        <div class="col-md-4 mt-4 mt-md-0">
+            <div class="bg-senac-dark p-4 rounded shadow-sm border border-secondary border-opacity-25">
+                <h5 class="fw-bold mb-3 text-senac-orange">Informações</h5>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+                    <li><strong class="text-white">Ano de Lançamento:</strong> @Model.AnoLancamento</li>
+                    <li><strong class="text-white">Duração:</strong> @Model.DuracaoFormatada</li>
+                    <li><strong class="text-white">Classificação:</strong> @Model.ClassificacaoNome</li>
+                    <li>
+                        <strong class="text-white">Gênero:</strong> 
+                        <span class="badge bg-secondary">@(Model.CategoriaNome ?? "Não informado")</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── FILMES RELACIONADOS ────────────────────────────────── -->
+@if (ViewBag.Relacionados != null)
+{
+    var relacionados = (IEnumerable<SenacFlix.UI.ViewModels.FilmeViewModel>)ViewBag.Relacionados;
+    if (relacionados.Any())
+    {
+        <div class="container py-4">
+            <h3 class="fw-bold mb-4">Filmes Semelhantes</h3>
+            <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+                @foreach (var r in relacionados)
+                {
+                    <div class="col">
+                        <partial name="_FilmeCard" model="r" />
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

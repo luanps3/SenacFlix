@@ -1,0 +1,276 @@
+@model SenacFlix.UI.ViewModels.ListaFilmesViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Catálogo";
+    ViewData["FullScreen"] = true;
+}
+
+@await Component.InvokeAsync("HeroBanner")
+
+
+<!-- ══════════════════════════════════════════════════
+     FILTROS — BUSCA EM TEMPO REAL
+     ══════════════════════════════════════════════════ -->
+<div class="container-fluid px-4 px-md-5">
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex gap-2 flex-wrap align-items-center p-3 rounded"
+             style="background:#1a1a1a; border:1px solid #333;">
+
+            <!-- Filtro por Categoria -->
+            <select id="selecionarCategoria" class="form-select w-auto flex-shrink-0"
+                    title="Filtrar por categoria">
+                <option value="">Todas as Categorias</option>
+                @foreach (var cat in Model.Categorias)
+                {
+                    if (Model.CategoriaFiltro == cat.Id)
+                    {
+                        <option value="@cat.Id" selected="selected">@cat.Nome</option>
+                    }
+                    else
+                    {
+                        <option value="@cat.Id">@cat.Nome</option>
+                    }
+                }
+            </select>
+
+            <!-- Campo de busca com debounce -->
+            <div class="flex-grow-1 position-relative" style="min-width:220px;">
+                <input id="campoBusca"
+                       type="text"
+                       class="form-control pe-5"
+                       placeholder="&#xF002; Buscar filmes, atores, diretores..."
+                       value="@Model.TermoBusca"
+                       autocomplete="off" />
+                <!-- Spinner dentro do input -->
+                <div id="indicadorCarregamento"
+                     class="position-absolute top-50 end-0 translate-middle-y me-3">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Título dinâmico -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="mb-0" id="tituloCatalogo">Catálogo de Filmes</h2>
+    <span id="contadorResultados" class="text-muted small"></span>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     GRADE DE FILMES
+     ══════════════════════════════════════════════════ -->
+<div id="listaFilmes" class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+    @if (Model.Filmes.Any())
+    {
+        @foreach (var filme in Model.Filmes)
+        {
+            <div class="col fade-in-card">
+                <a asp-action="Detalhes" asp-route-id="@filme.Id" class="text-decoration-none">
+                    <div class="card h-100 filme-card shadow">
+                        @if (!string.IsNullOrEmpty(filme.ImagemCapaUrl))
+                        {
+                            <img src="@filme.ImagemCapaUrl"
+                                 class="card-img-top filme-capa"
+                                 alt="@filme.Titulo"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top filme-capa  d-flex align-items-center justify-content-center">
+                                <i class="fa fa-film fa-2x text-muted"></i>
+                            </div>
+                        }
+                        <div class="card-body p-2" >
+                            <h6 class="card-title  text-truncate mb-1">@filme.Titulo</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">@filme.AnoLancamento</small>
+                                <span class="badge" style="background-color: @filme.ClassificacaoCor; font-size:0.7rem;">
+                                    @filme.ClassificacaoNome
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <i class="fa fa-film fa-3x text-muted mb-3 d-block"></i>
+            <h4 class="text-muted">Nenhum filme encontrado.</h4>
+        </div>
+    }
+</div>
+
+<!-- Estado: sem resultados (AJAX) -->
+<div id="semResultados" class="text-center py-5">
+    <i class="fa fa-search fa-3x text-muted mb-3 d-block"></i>
+    <h4>Nenhum resultado encontrado.</h4>
+    <p class="text-muted">Tente outro título, ator ou diretor.</p>
+</div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    'use strict';
+
+
+    /* ── Lógica Original da Página ── */
+
+    const campoBusca         = document.getElementById('campoBusca');
+    const selecionarCategoria = document.getElementById('selecionarCategoria');
+    const listaFilmes        = document.getElementById('listaFilmes');
+    const semResultados      = document.getElementById('semResultados');
+    const indicador          = document.getElementById('indicadorCarregamento');
+    const contador           = document.getElementById('contadorResultados');
+    const titulo             = document.getElementById('tituloCatalogo');
+
+    let debounceTimer = null;
+
+    /* ── Renderiza cards com fade-in ── */
+    function renderizarFilmes(filmes) {
+        listaFilmes.innerHTML = '';
+        semResultados.style.display = 'none';
+
+        if (!filmes || filmes.length === 0) {
+            semResultados.style.display = 'block';
+            contador.textContent = '';
+            return;
+        }
+
+        contador.textContent = `${filmes.length} título${filmes.length !== 1 ? 's' : ''}`;
+
+        filmes.forEach(function (f, idx) {
+            const col = document.createElement('div');
+            col.className = 'col fade-in-card';
+            col.style.animationDelay = `${idx * 30}ms`;
+
+            const hasUrl    = f.imagemCapaUrl && f.imagemCapaUrl.trim() !== '';
+            const cor       = f.classificacaoCor   || '#555';
+            const classif   = f.classificacaoNome  || '';
+            const ano       = f.anoLancamento       || '';
+            const detalhUrl = `/Cliente/Catalogo/Detalhes/${f.id}`;
+
+            col.innerHTML = `
+                <a href="${detalhUrl}" class="text-decoration-none">
+                    <div class="card h-100 filme-card shadow">
+                        ${hasUrl
+                            ? `<img src="${f.imagemCapaUrl}" class="card-img-top filme-capa" alt="${f.titulo}" loading="lazy" />`
+                            : `<div class="card-img-top filme-capa  d-flex align-items-center justify-content-center">
+                                   <i class="fa fa-film fa-2x text-muted"></i>
+                               </div>`
+                        }
+                        <div class="card-body p-2" >
+                            <h6 class="card-title  text-truncate mb-1">${f.titulo}</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">${ano}</small>
+                                <span class="badge" style="background-color:${cor}; font-size:0.7rem;">${classif}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>`;
+            listaFilmes.appendChild(col);
+        });
+    }
+
+    /* ── Renderiza skeletons enquanto carrega ── */
+    function mostrarSkeletons() {
+        listaFilmes.innerHTML = '';
+        semResultados.style.display = 'none';
+        for (let i = 0; i < 10; i++) {
+            const col = document.createElement('div');
+            col.className = 'col';
+            col.innerHTML = `
+                <div class="card h-100 shadow" >
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="p-2">
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-sub mt-2"></div>
+                    </div>
+                </div>`;
+            listaFilmes.appendChild(col);
+        }
+    }
+
+    /* ── Busca principal ── */
+    async function buscar() {
+        const termo = campoBusca.value.trim();
+        const categoriaId = selecionarCategoria.value;
+
+        indicador.style.display = 'block';
+        mostrarSkeletons();
+
+        try {
+            const baseUrl = '@Configuration["ApiConfiguracoes:UrlBase"]';
+            let url = baseUrl + '/api/Filmes';
+            let params = new URLSearchParams();
+
+            if (termo.length >= 2) {
+                params.append('termo', termo);
+                titulo.textContent = `Resultados para "${termo}"`;
+            } else {
+                titulo.textContent = 'Catálogo de Filmes';
+            }
+
+            if (categoriaId) {
+                params.append('categoriaId', categoriaId);
+                const nomeCat = selecionarCategoria.options[selecionarCategoria.selectedIndex].text;
+                if (termo.length >= 2) {
+                    titulo.textContent += ` em ${nomeCat}`;
+                } else {
+                    titulo.textContent = nomeCat;
+                }
+            }
+
+            if (params.toString()) {
+                // Se só tem categoria (e o termo for pequeno), mas a API de buscar agora suporta ambos
+                // Então, para usar o novo endpoint combinado, podemos usar sempre o `/buscar` se houver algum filtro.
+                url = baseUrl + `/api/Filmes/buscar?${params.toString()}`;
+            }
+
+            const resp = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+            const json = await resp.json();
+
+            // A API retorna { sucesso, dados } com o wrapper ApiResposta
+            const filmes = json.dados ?? json;
+            renderizarFilmes(Array.isArray(filmes) ? filmes : []);
+
+        } catch (err) {
+            console.error('Erro na busca:', err);
+            listaFilmes.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">Erro ao carregar filmes.</h4></div>';
+            semResultados.style.display = 'none';
+        } finally {
+            indicador.style.display = 'none';
+        }
+    }
+
+    /* ── Debounce no campo de busca ── */
+    campoBusca.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const val = campoBusca.value.trim();
+        if (val.length === 0 || val.length >= 2) {
+            debounceTimer = setTimeout(buscar, 300);
+        }
+    });
+
+    /* ── Filtro por categoria (com debounce ou imediato) ── */
+    selecionarCategoria.addEventListener('change', function () {
+        clearTimeout(debounceTimer);
+        buscar();
+    });
+
+})();
+</script>
+}

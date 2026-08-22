@@ -1,0 +1,280 @@
+@model SenacFlix.UI.ViewModels.FilmeEdicaoViewModel
+@{
+    ViewData["Title"] = "Novo Filme";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-film me-2"></i>Novo Filme</h2>
+    <a asp-action="Index" class="btn btn-outline-light px-4 py-2 fw-semibold shadow-sm">
+        <i class="bi bi-arrow-left me-1"></i> Voltar à Listagem
+    </a>
+</div>
+
+<form asp-action="Criar" enctype="multipart/form-data" method="post" id="formFilme">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 shadow-sm"></div>
+
+    <div class="row g-4">
+        <!-- Coluna Esquerda: Informações Gerais -->
+        <div class="col-lg-8">
+            <div class="card   shadow-sm">
+                <div class="card-header    fw-bold py-3">
+                    <i class="bi bi-info-circle me-2 text-senac-blue"></i>Informações Gerais
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label asp-for="Titulo" class="form-label fw-semibold">Título *</label>
+                        <input asp-for="Titulo" class="form-control   " placeholder="Ex: O Senhor dos Anéis" />
+                        <span asp-validation-for="Titulo" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Descricao" class="form-label fw-semibold">Sinopse *</label>
+                        <textarea asp-for="Descricao" class="form-control   " rows="4" placeholder="Breve descrição do enredo..."></textarea>
+                        <span asp-validation-for="Descricao" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label asp-for="CategoriaId" class="form-label fw-semibold">Categoria *</label>
+                            <select asp-for="CategoriaId" asp-items="Model.CategoriasDisponiveis" class="form-select   ">
+                                <option value="">Selecione...</option>
+                            </select>
+                            <span asp-validation-for="CategoriaId" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="AnoLancamento" class="form-label fw-semibold">Ano *</label>
+                            <input asp-for="AnoLancamento" type="number" min="1900" max="2100" class="form-control   " />
+                            <span asp-validation-for="AnoLancamento" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Duracao" class="form-label fw-semibold">Duração (min) *</label>
+                            <input asp-for="Duracao" type="number" min="1" class="form-control   " />
+                            <span asp-validation-for="Duracao" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Diretor" class="form-label fw-semibold">Diretor</label>
+                            <input asp-for="Diretor" class="form-control   " placeholder="Nome do diretor principal" />
+                            <span asp-validation-for="Diretor" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ClassificacaoIndicativaId" class="form-label fw-semibold">Classificação Indicativa *</label>
+                            <select asp-for="ClassificacaoIndicativaId" asp-items="Model.ClassificacoesDisponiveis" class="form-select   ">
+                                <option value="">Selecione...</option>
+                            </select>
+                            <span asp-validation-for="ClassificacaoIndicativaId" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="Elenco" class="form-label fw-semibold">Elenco</label>
+                        <input asp-for="Elenco" class="form-control   " placeholder="Ex: Ator A, Ator B, Atriz C..." />
+                        <span asp-validation-for="Elenco" class="text-danger small mt-1 d-block"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Mídia -->
+        <div class="col-lg-4">
+            <div class="card   shadow-sm mb-4">
+                <div class="card-header    fw-bold py-3">
+                    <i class="bi bi-image me-2 text-senac-blue"></i>Mídia e Links
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Capa -->
+                    <div class="mb-4 text-center border p-3 rounded bg-dark border-secondary">
+                        <label class="form-label fw-semibold d-block text-start text-white">Capa do Filme</label>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="TipoCapa" value="Upload" id="capaUpload" checked onchange="toggleCapa()">
+                                <label class="form-check-label text-white" for="capaUpload">Upload</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="TipoCapa" value="Url" id="capaUrl" onchange="toggleCapa()">
+                                <label class="form-check-label text-white" for="capaUrl">URL</label>
+                            </div>
+                        </div>
+
+                        <div class="border rounded p-2 mb-2 bg-black d-flex justify-content-center align-items-center position-relative overflow-hidden" style="height: 300px;">
+                            <img id="previewCapa" src="#" alt="Preview Capa" style="max-height: 100%; max-width: 100%; display: none; object-fit: contain;" />
+                            <div id="placeholderCapa" class="text-muted text-center w-100">
+                                <i class="bi bi-card-image fs-1 d-block mb-2"></i>
+                                <span class="small">Nenhuma capa</span><br>
+                                <span class="small text-secondary">Proporção sugerida: 2:3</span>
+                            </div>
+                        </div>
+
+                        <div id="divCapaUpload">
+                            <input asp-for="NovaImagemCapa" type="file" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp,image/jpg" onchange="previewImageUpload(this, 'previewCapa', 'placeholderCapa')" />
+                            <div class="form-text text-secondary mt-1 text-start"><i class="bi bi-info-circle me-1"></i>Máx 10MB (JPG, PNG, WEBP)</div>
+                        </div>
+
+                        <div id="divCapaUrl" style="display: none;">
+                            <input asp-for="NovaImagemCapaUrlInfo" class="form-control form-control-sm" placeholder="https://exemplo.com/capa.jpg" oninput="previewImageUrl(this.value, 'previewCapa', 'placeholderCapa')" />
+                            <div class="form-text text-secondary mt-1 text-start"><i class="bi bi-link me-1"></i>Cole uma URL válida</div>
+                        </div>
+                    </div>
+
+                    <!-- Banner -->
+                    <div class="mb-4 text-center border p-3 rounded bg-dark border-secondary">
+                        <label class="form-label fw-semibold d-block text-start text-white">Banner do Filme</label>
+
+                        <div class="d-flex mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="TipoBanner" value="Upload" id="bannerUpload" checked onchange="toggleBanner()">
+                                <label class="form-check-label text-white" for="bannerUpload">Upload</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="TipoBanner" value="Url" id="bannerUrl" onchange="toggleBanner()">
+                                <label class="form-check-label text-white" for="bannerUrl">URL</label>
+                            </div>
+                        </div>
+
+                        <div class="border rounded p-2 mb-2 bg-black d-flex justify-content-center align-items-center position-relative overflow-hidden" style="height: 150px;">
+                            <img id="previewBanner" src="#" alt="Preview Banner" style="max-height: 100%; max-width: 100%; display: none; object-fit: contain;" />
+                            <div id="placeholderBanner" class="text-muted text-center w-100">
+                                <i class="bi bi-image fs-1 d-block mb-2"></i>
+                                <span class="small">Nenhum banner</span><br>
+                                <span class="small text-secondary">Proporção sugerida: 16:9</span>
+                            </div>
+                        </div>
+
+                        <div id="divBannerUpload">
+                            <input asp-for="NovaImagemBanner" type="file" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp,image/jpg" onchange="previewImageUpload(this, 'previewBanner', 'placeholderBanner')" />
+                            <div class="form-text text-secondary mt-1 text-start"><i class="bi bi-info-circle me-1"></i>Máx 10MB (JPG, PNG, WEBP)</div>
+                        </div>
+
+                        <div id="divBannerUrl" style="display: none;">
+                            <input asp-for="NovaImagemBannerUrlInfo" class="form-control form-control-sm" placeholder="https://exemplo.com/banner.jpg" oninput="previewImageUrl(this.value, 'previewBanner', 'placeholderBanner')" />
+                            <div class="form-text text-secondary mt-1 text-start"><i class="bi bi-link me-1"></i>Cole uma URL válida</div>
+                        </div>
+                    </div>
+
+                    <!-- Links Youtube -->
+                    <div class="mb-3">
+                        <label asp-for="TrailerYoutubeUrl" class="form-label fw-semibold">Link do Trailer (Youtube)</label>
+                        <div class="input-group">
+                            <span class="input-group-text   text-danger"><i class="bi bi-youtube"></i></span>
+                            <input asp-for="TrailerYoutubeUrl" class="form-control   " placeholder="https://youtube.com/watch?v=..." />
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label asp-for="VideoYoutubeUrl" class="form-label fw-semibold">Link do Filme (Youtube)</label>
+                        <div class="input-group">
+                            <span class="input-group-text   text-danger"><i class="bi bi-youtube"></i></span>
+                            <input asp-for="VideoYoutubeUrl" class="form-control   " placeholder="https://youtube.com/watch?v=..." />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="card   shadow-sm mb-5">
+        <div class="card-body text-end p-3">
+            <a asp-action="Index" class="btn btn-outline-light px-4 py-2 me-2">Cancelar</a>
+            <button type="submit" class="btn btn-senac-orange px-5 py-2 fw-bold" id="btnSalvar">
+                <i class="bi bi-check2-circle me-2"></i>Salvar Filme
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function toggleCapa() {
+            var upload = document.getElementById('capaUpload').checked;
+            document.getElementById('divCapaUpload').style.display = upload ? 'block' : 'none';
+            document.getElementById('divCapaUrl').style.display = upload ? 'none' : 'block';
+        }
+
+        function toggleBanner() {
+            var upload = document.getElementById('bannerUpload').checked;
+            document.getElementById('divBannerUpload').style.display = upload ? 'block' : 'none';
+            document.getElementById('divBannerUrl').style.display = upload ? 'none' : 'block';
+        }
+
+        function previewImageUrl(url, previewId, placeholderId) {
+            const preview = document.getElementById(previewId);
+            const placeholder = document.getElementById(placeholderId);
+
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                preview.onerror = function() {
+                    preview.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    placeholder.innerHTML = '<i class="bi bi-exclamation-triangle text-danger fs-1 d-block mb-2"></i><span class="small text-danger">URL Inválida ou Quebrada</span>';
+                };
+                preview.onload = function() {
+                    placeholder.innerHTML = '<i class="bi bi-image fs-1 d-block mb-2"></i><span class="small">Nenhuma imagem</span>';
+                };
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        }
+
+        function previewImageUpload(input, previewId, placeholderId) {
+            const preview = document.getElementById(previewId);
+            const placeholder = document.getElementById(placeholderId);
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validação de Tamanho (10MB)
+                const maxSize = 10 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Arquivo muito grande',
+                        text: 'A imagem deve ter no máximo 10MB.',
+                        background: '#212529',
+                        color: '#fff',
+                        confirmButtonColor: '#ff6b00'
+                    });
+                    input.value = '';
+                    preview.style.display = 'none';
+                    placeholder.style.display = 'block';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        }
+
+        document.getElementById('formFilme').addEventListener('submit', function(e) {
+            if ($(this).valid()) {
+                const btn = document.getElementById('btnSalvar');
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Salvando...';
+                btn.disabled = true;
+            }
+        });
+    </script>
+    <style>
+        .btn-senac-orange { background-color: #ff6b00; border-color: #ff6b00; color: white; }
+        .btn-senac-orange:hover { background-color: #e66000; border-color: #e66000; color: white; }
+        .text-senac-blue { color: #004a8f; }
+    </style>
+}

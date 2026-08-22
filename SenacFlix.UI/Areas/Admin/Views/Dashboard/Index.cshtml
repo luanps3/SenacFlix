@@ -1,5 +1,366 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model SenacFlix.UI.ViewModels.DashboardEstatisticasViewModel
+@using System.Text.Json
 @{
+    ViewData["Title"] = "Dashboard Admin";
+
+    var modelJson = JsonSerializer.Serialize(Model, new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-4 border-bottom border-secondary border-opacity-25">
+    <h1 class="h2 fw-bold" style="color: var(--nf-text);">Visão Geral</h1>
+    <div class="text-muted small">@DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy")</div>
+</div>
+
+@if (ViewBag.ErroDashboard != null)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 shadow-sm" role="alert">
+        <i class="fa fa-exclamation-triangle"></i>
+        <div>
+            <strong>Erro ao carregar o Dashboard:</strong> @ViewBag.ErroDashboard
+            <br><small class="text-muted">Verifique se a API está rodando</small>
+        </div>
+    </div>
+}
+
+<!-- ── Ações Rápidas ────────────────────────────────────────────── -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing:1px; font-size:0.8rem;">
+    <i class="fa fa-bolt me-2 text-senac-orange"></i> Ações Rápidas
+</h6>
+<div class="row mb-5">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-area="Admin" asp-controller="Filmes" asp-action="Criar" class="admin-stat-card text-decoration-none h-100" style="background-color: #181818; background-image: linear-gradient(135deg, rgba(40,167,69,0.15) 0%, rgba(20,80,30,0.5) 100%);">
+            <div class="admin-stat-icon-box" style="background-color: rgba(40,167,69,0.2);">
+                <i class="fa fa-plus-circle text-success"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h4 class="text-white fw-bold m-0 fs-5">Novo Filme</h4>
+                <p class="text-white-50 small m-0 mt-1">Adicionar ao catálogo</p>
+            </div>
+            <i class="fa fa-film admin-stat-bg-icon"></i>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-area="Admin" asp-controller="Categorias" asp-action="Criar" class="admin-stat-card text-decoration-none h-100" style="background-color: #181818; background-image: linear-gradient(135deg, rgba(23,162,184,0.15) 0%, rgba(10,80,90,0.5) 100%);">
+            <div class="admin-stat-icon-box" style="background-color: rgba(23,162,184,0.2);">
+                <i class="fa fa-tag text-info"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h4 class="text-white fw-bold m-0 fs-5">Nova Categoria</h4>
+                <p class="text-white-50 small m-0 mt-1">Organizar conteúdo</p>
+            </div>
+            <i class="fa fa-tags admin-stat-bg-icon"></i>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-area="" asp-controller="Conta" asp-action="Registrar" class="admin-stat-card text-decoration-none h-100" style="background-color: #181818; background-image: linear-gradient(135deg, rgba(241,159,0,0.15) 0%, rgba(120,80,0,0.5) 100%);">
+            <div class="admin-stat-icon-box" style="background-color: rgba(241,159,0,0.2);">
+                <i class="fa fa-user-plus text-warning"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h4 class="text-white fw-bold m-0 fs-5">Novo Usuário</h4>
+                <p class="text-white-50 small m-0 mt-1">Criar conta</p>
+            </div>
+            <i class="fa fa-users admin-stat-bg-icon"></i>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a asp-area="Admin" asp-controller="Filmes" asp-action="Index" class="admin-stat-card text-decoration-none h-100" style="background-color: #181818; background-image: linear-gradient(135deg, rgba(0,94,184,0.15) 0%, rgba(0,40,90,0.5) 100%);">
+            <div class="admin-stat-icon-box" style="background-color: rgba(0,94,184,0.2);">
+                <i class="fa fa-list text-primary"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h4 class="text-white fw-bold m-0 fs-5">Listar Filmes</h4>
+                <p class="text-white-50 small m-0 mt-1">Gerenciamento completo</p>
+            </div>
+            <i class="fa fa-table admin-stat-bg-icon"></i>
+        </a>
+    </div>
+</div>
+
+<!-- ── Indicadores Gerais ────────────────────────────────────────── -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing:1px; font-size:0.8rem;">
+    <i class="fa fa-chart-line me-2 text-senac-orange"></i> Estatísticas
+</h6>
+<div class="row mb-5">
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid var(--senac-blue);">
+            <div class="admin-stat-icon-box bg-primary bg-opacity-10 text-primary">
+                <i class="fa fa-video"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalFilmes</h3>
+                <p>Total de Filmes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #28a745;">
+            <div class="admin-stat-icon-box bg-success bg-opacity-10 text-success">
+                <i class="fa fa-check-circle"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.FilmesAtivos</h3>
+                <p>Filmes Ativos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #dc3545;">
+            <div class="admin-stat-icon-box bg-danger bg-opacity-10 text-danger">
+                <i class="fa fa-ban"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.FilmesDesativados</h3>
+                <p>Filmes Inativos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid var(--senac-orange);">
+            <div class="admin-stat-icon-box bg-warning bg-opacity-10 text-warning">
+                <i class="fa fa-tags"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalCategorias</h3>
+                <p>Categorias</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #17a2b8;">
+            <div class="admin-stat-icon-box bg-info bg-opacity-10 text-info">
+                <i class="fa fa-users"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalUsuarios</h3>
+                <p>Total Usuários</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #e83e8c;">
+            <div class="admin-stat-icon-box" style="background-color: rgba(232, 62, 140, 0.1); color: #e83e8c;">
+                <i class="fa fa-user-shield"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalAdministradores</h3>
+                <p>Administradores</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #6c757d;">
+            <div class="admin-stat-icon-box bg-secondary bg-opacity-10 text-secondary">
+                <i class="fa fa-user-cog"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalOperadores</h3>
+                <p>Operadores</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
+        <div class="admin-stat-card" style="border-left: 4px solid #ff4d4d;">
+            <div class="admin-stat-icon-box bg-danger bg-opacity-10 text-danger">
+                <i class="fa fa-heart"></i>
+            </div>
+            <div class="admin-stat-details">
+                <h3>@Model.TotalFavoritos</h3>
+                <p>Favoritos (Geral)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Gráficos ──────────────────────────────────────────────────── -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing:1px; font-size:0.8rem;">
+    <i class="fa fa-chart-pie me-2 text-senac-orange"></i> Relatórios Analíticos
+</h6>
+<div class="row mb-5">
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-4 text-center">Filmes por Gênero</h6>
+                <div style="height: 250px;">
+                    <canvas id="chartGeneros"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-4 text-center">Classificação Indicativa</h6>
+                <div style="height: 250px;">
+                    <canvas id="chartClassificacao"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-4 text-center">Usuários por Perfil</h6>
+                <div style="height: 250px;">
+                    <canvas id="chartUsuarios"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-4">Filmes por Ano de Lançamento</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartAno"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
+            <div class="card-body">
+                <h6 class="card-title fw-bold mb-4">Top 10 Filmes Favoritados</h6>
+                <div style="height: 300px;">
+                    <canvas id="chartTopFavoritos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Tabela de Últimas Atividades ──────────────────────────────── -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing:1px; font-size:0.8rem;">
+    <i class="fa fa-history me-2 text-senac-orange"></i> Últimas Atividades do Sistema
+</h6>
+<div class="table-responsive mb-5">
+    <table class="table table-modern">
+        <thead>
+            <tr>
+                <th>Ação</th>
+                <th>Módulo</th>
+                <th>Status</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><i class="fa fa-sync text-primary me-2"></i> Relatórios atualizados</td>
+                <td>Dashboard</td>
+                <td><span class="badge bg-success">Concluído</span></td>
+                <td>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</td>
+            </tr>
+            <tr>
+                <td><i class="fa fa-user-plus text-warning me-2"></i> Novos usuários registrados</td>
+                <td>Autenticação</td>
+                <td><span class="badge bg-success">Ativo</span></td>
+                <td>Hoje</td>
+            </tr>
+            <tr>
+                <td><i class="fa fa-film text-info me-2"></i> Sincronização de catálogo</td>
+                <td>Filmes</td>
+                <td><span class="badge bg-secondary">Pendente</span></td>
+                <td>Hoje</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+                const dashboardData = @Html.Raw(modelJson);
+                const cores = ['#f19f00', '#005EB8', '#28a745', '#dc3545', '#17a2b8', '#6610f2', '#e83e8c', '#fd7e14', '#20c997', '#6c757d', '#343a40', '#0d6efd'];
+                const rootStyle = getComputedStyle(document.documentElement);
+                const textColor = rootStyle.getPropertyValue('--nf-text').trim() || '#adb5bd';
+                const gridColor = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+                Chart.defaults.color = textColor;
+                Chart.defaults.font.family = "'Inter', 'Helvetica Neue', Arial, sans-serif";
+
+                if (dashboardData.filmesPorCategoria && dashboardData.filmesPorCategoria.length > 0) {
+                    new Chart(document.getElementById('chartGeneros'), {
+                        type: 'pie',
+                        data: {
+                            labels: dashboardData.filmesPorCategoria.map(x => x.label),
+                            datasets: [{
+                                data: dashboardData.filmesPorCategoria.map(x => x.valor),
+                                backgroundColor: cores,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                    });
+                }
+
+                if (dashboardData.filmesPorClassificacao && dashboardData.filmesPorClassificacao.length > 0) {
+                    new Chart(document.getElementById('chartClassificacao'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: dashboardData.filmesPorClassificacao.map(x => x.label),
+                            datasets: [{
+                                data: dashboardData.filmesPorClassificacao.map(x => x.valor),
+                                backgroundColor: ['#00B150','#00AEEF','#F8C300','#F37021','#ED1C24','#343a40'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, cutout: '70%' }
+                    });
+                }
+
+                if (dashboardData.filmesPorAno && dashboardData.filmesPorAno.length > 0) {
+                    new Chart(document.getElementById('chartAno'), {
+                        type: 'line',
+                        data: {
+                            labels: dashboardData.filmesPorAno.map(x => x.label),
+                            datasets: [{
+                                label: 'Filmes',
+                                data: dashboardData.filmesPorAno.map(x => x.valor),
+                                borderColor: '#005EB8',
+                                backgroundColor: 'rgba(0, 94, 184, 0.1)',
+                                pointBackgroundColor: '#f19f00',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+                    });
+                }
+
+                if (dashboardData.usuariosPorPerfil && dashboardData.usuariosPorPerfil.length > 0) {
+                    new Chart(document.getElementById('chartUsuarios'), {
+                        type: 'bar',
+                        data: {
+                            labels: dashboardData.usuariosPorPerfil.map(x => x.label),
+                            datasets: [{
+                                label: 'Usuários',
+                                data: dashboardData.usuariosPorPerfil.map(x => x.valor),
+                                backgroundColor: ['#e83e8c', '#6c757d', '#17a2b8'],
+                                borderRadius: 4
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+                    });
+                }
+
+                if (dashboardData.top10FilmesFavoritados && dashboardData.top10FilmesFavoritados.length > 0) {
+                    new Chart(document.getElementById('chartTopFavoritos'), {
+                        type: 'bar',
+                        data: {
+                            labels: dashboardData.top10FilmesFavoritados.map(x => x.label),
+                            datasets: [{
+                                label: 'Favoritos',
+                                data: dashboardData.top10FilmesFavoritados.map(x => x.valor),
+                                backgroundColor: '#f19f00',
+                                borderRadius: 4
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: gridColor } }, y: { grid: { display: false } } } }
+                    });
+                }
+    </script>
 }

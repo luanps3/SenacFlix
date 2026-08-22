@@ -1,0 +1,78 @@
+@model IEnumerable<SenacFlix.UI.ViewModels.UsuarioViewModel>
+
+@if (!Model.Any())
+{
+    <div class="text-center p-5 text-muted">
+        <i class="fa fa-folder-open fa-3x mb-3 opacity-50"></i>
+        <h5>Nenhum usuário encontrado nesta categoria.</h5>
+    </div>
+}
+else
+{
+    <table class="table table-modern m-0">
+        <thead>
+            <tr>
+                <th style="padding-left: 1.5rem;">Usuário</th>
+                <th>E-mail</th>
+                <th>Data de Cadastro</th>
+                <th>Status</th>
+                <th class="text-end" style="padding-right: 1.5rem;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td style="padding-left: 1.5rem;">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(user.FotoPerfilUrl))
+                            {
+                                <img src="@user.FotoPerfilUrl" alt="Foto" class="rounded-circle me-3" style="width:40px; height:40px; object-fit:cover; border:1px solid #444;" />
+                            }
+                            else
+                            {
+                                <div class="rounded-circle me-3 bg-secondary d-flex justify-content-center align-items-center text-white" style="width:40px; height:40px;">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                            }
+                            <div>
+                                <div class="fw-bold mb-0" style="color: var(--nf-text);">@user.NomeCompleto</div>
+                                <small class="text-muted">ID: @user.Id.Substring(0, 8)...</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@user.Email</td>
+                    <td>@user.DataCadastro.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (user.Ativo)
+                        {
+                            <span class="badge bg-success rounded-pill px-3">Ativo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger rounded-pill px-3">Inativo</span>
+                        }
+                    </td>
+                    <td class="text-end" style="padding-right: 1.5rem;">
+                        @if (user.Ativo)
+                        {
+                            <form asp-action="Desativar" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja desativar este usuário? Ele não poderá mais acessar o sistema.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Desativar Usuário">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Ativar" asp-route-id="@user.Id" method="post" class="d-inline" onsubmit="return confirm('Deseja reativar o acesso deste usuário?');">
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Ativar Usuário">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

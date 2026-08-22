@@ -1,0 +1,102 @@
+@* Nome: Index.cshtml
+   Objetivo: Exibir a lista de filmes favoritados pelo usuario autenticado.
+   Model: IEnumerable<FavoritoViewModel> — fortemente tipado, sem dynamic, sem JsonElement.
+*@
+@model IEnumerable<FavoritoViewModel>
+@{
+    ViewData["Title"] = "Meus Favoritos";
+}
+
+<h2 class="mb-4">Minha Lista de Favoritos</h2>
+
+<div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100 filme-card shadow position-relative">
+
+                    @* Capa clicavel levando aos detalhes *@
+                    <a asp-area="Cliente"
+                       asp-controller="Catalogo"
+                       asp-action="Detalhes"
+                       asp-route-id="@item.FilmeId"
+                       class="text-decoration-none d-block">
+                        @if (!string.IsNullOrEmpty(item.FilmeImagemCapaUrl))
+                        {
+                            <img src="@item.FilmeImagemCapaUrl"
+                                 class="card-img-top filme-capa"
+                                 alt="@item.FilmeTitulo" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top filme-capa  d-flex align-items-center justify-content-center">
+                                <span class="text-center px-2">@item.FilmeTitulo</span>
+                            </div>
+                        }
+                    </a>
+
+                    @* Rodape do card *@
+                    <div class="card-body p-2 d-flex flex-column" >
+
+                        @* Titulo *@
+                        <a asp-area="Cliente"
+                           asp-controller="Catalogo"
+                           asp-action="Detalhes"
+                           asp-route-id="@item.FilmeId"
+                           class="text-decoration-none">
+                            <h6 class="card-title  text-truncate mb-1">@item.FilmeTitulo</h6>
+                        </a>
+
+                        @* Categoria *@
+                        @if (!string.IsNullOrEmpty(item.FilmeCategoriaNome))
+                        {
+                            <small class="text-senac-blue fw-bold mb-1">@item.FilmeCategoriaNome</small>
+                        }
+
+                        @* Data em que foi adicionado *@
+                        <small class="text-muted mb-2">
+                            Adicionado em @item.DataFavorito.ToString("dd/MM/yyyy")
+                        </small>
+
+                        @* Botoes de acao *@
+                        <div class="mt-auto pt-2 d-flex flex-column gap-2">
+
+                            @* Botao Ver Detalhes *@
+                            <a asp-area="Cliente"
+                               asp-controller="Catalogo"
+                               asp-action="Detalhes"
+                               asp-route-id="@item.FilmeId"
+                               class="btn btn-sm btn-outline-light w-100">
+                                Ver Detalhes
+                            </a>
+
+                            @* Botao Remover dos Favoritos *@
+                            <form asp-area="Cliente"
+                                  asp-controller="Favoritos"
+                                  asp-action="Remover"
+                                  method="post">
+                                <input type="hidden" name="filmeId" value="@item.FilmeId" />
+                                <input type="hidden" name="redirectUrl" value="/Cliente/Favoritos" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                    ✕ Remover dos Favoritos
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5">
+            <h4 class="text-muted">Você ainda não tem filmes favoritos.</h4>
+            <a asp-area="Cliente"
+               asp-controller="Catalogo"
+               asp-action="Index"
+               class="btn btn-senac-orange mt-3">Explorar Catálogo</a>
+        </div>
+    }
+</div>

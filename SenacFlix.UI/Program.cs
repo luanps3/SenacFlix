@@ -23,7 +23,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHttpClient("SenacFlixAPI", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiConfiguracoes:UrlBase"] ?? "http://localhost:5031");
+    client.BaseAddress = new Uri(builder.Configuration["ApiConfiguracoes:UrlBase"] ?? "http://localhost:5029");
 })
     //Ignora validação de certificado SSL apenas para ambiente de desenvolvimento local
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler

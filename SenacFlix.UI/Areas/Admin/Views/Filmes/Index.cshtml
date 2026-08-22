@@ -1,0 +1,506 @@
+@model IEnumerable<SenacFlix.UI.ViewModels.FilmeViewModel>
+@{
+    ViewData["Title"] = "Gerenciar Filmes";
+    var totalFilmes = Model?.Count() ?? 0;
+    var ativos = Model?.Count(f => f.Ativo) ?? 0;
+    var desativados = Model?.Count(f => !f.Ativo) ?? 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 fw-bold mb-0" style="color: var(--nf-text);"><i class="fa fa-film me-2 text-senac-orange"></i>Gerenciar Filmes</h1>
+    <a asp-action="Criar" class="btn btn-senac-orange px-4 py-2 fw-semibold shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Novo Filme
+    </a>
+</div>
+
+<!-- DASHBOARD SUPERIOR -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card   shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-camera-reels text-primary fs-3"></i>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Total de Filmes</p>
+                    <h3 class="mb-0 fw-bold">@totalFilmes</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card   shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-check-circle text-success fs-3"></i>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Filmes Ativos</p>
+                    <h3 class="mb-0 fw-bold">@ativos</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card   shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-x-circle text-warning fs-3"></i>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Filmes Desativados</p>
+                    <h3 class="mb-0 fw-bold">@desativados</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card   shadow-sm h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="flex-shrink-0 bg-info bg-opacity-10 p-3 rounded">
+                    <i class="bi bi-tags text-info fs-3"></i>
+                </div>
+                <div class="ms-3">
+                    <p class="text-muted mb-0 small text-uppercase fw-bold">Total de Categorias</p>
+                    <h3 class="mb-0 fw-bold" id="totalCategoriasCounter">...</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BARRA DE FERRAMENTAS -->
+<div class="card   shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <!-- Filtros de Botão -->
+            <div class="col-md-4">
+                <div class="btn-group w-100" role="group">
+                    <button type="button" class="btn btn-outline-light active" onclick="filtrarStatus('todos')">Todos</button>
+                    <button type="button" class="btn btn-outline-success" onclick="filtrarStatus('ativos')">Ativos</button>
+                    <button type="button" class="btn btn-outline-warning" onclick="filtrarStatus('desativados')">Desativados</button>
+                </div>
+            </div>
+            
+            <!-- Pesquisa de Texto -->
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text   "><i class="bi bi-search"></i></span>
+                    <input type="text" id="inputPesquisa" class="form-control" placeholder="Título, Diretor ou Categoria..." onkeyup="aplicarFiltros()">
+                </div>
+            </div>
+
+            <!-- Filtro Categoria -->
+            <div class="col-md-2">
+                <select id="selectCategoria" class="form-select" onchange="aplicarFiltros()">
+                    <option value="">Todas as Categorias</option>
+                    @if (Model != null)
+                    {
+                        foreach (var cat in Model.Select(m => m.CategoriaNome).Distinct().OrderBy(c => c))
+                        {
+                            <option value="@cat">@cat</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <!-- Filtro Classificação -->
+            <div class="col-md-2">
+                <select id="selectClassificacao" class="form-select" onchange="aplicarFiltros()">
+                    <option value="">Qualquer Classificação</option>
+                    @if (Model != null)
+                    {
+                        foreach (var clas in Model.Select(m => m.ClassificacaoNome).Distinct().OrderBy(c => c))
+                        {
+                            <option value="@clas">@clas</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <button type="button" class="btn btn-secondary w-100" onclick="limparFiltros()" title="Limpar Filtros">
+                    <i class="bi bi-eraser"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LISTAGEM -->
+<div class="card   shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-modern align-middle mb-0" id="tabelaFilmes">
+                <thead class="table-active border-bottom ">
+                    <tr>
+                        <th class="ps-3 cursor-pointer" onclick="ordenarTabela(0, 'num')">ID <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th>Capa</th>
+                        <th class="cursor-pointer" onclick="ordenarTabela(2, 'str')">Título <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th>Diretor</th>
+                        <th class="cursor-pointer" onclick="ordenarTabela(4, 'str')">Categoria <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th class="cursor-pointer" onclick="ordenarTabela(5, 'num')">Ano <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th class="cursor-pointer" onclick="ordenarTabela(6, 'str')">Classificação <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th>Status</th>
+                        <th class="cursor-pointer" onclick="ordenarTabela(8, 'date')">Cadastro <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                        <th class="text-end pe-3">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyFilmes">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr data-status="@(item.Ativo ? "ativos" : "desativados")" 
+                                data-categoria="@item.CategoriaNome" 
+                                data-classificacao="@item.ClassificacaoNome"
+                                data-texto="@(item.Titulo + " " + item.Diretor + " " + item.CategoriaNome)">
+                                <td class="ps-3">@item.Id</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImagemCapaUrl))
+                                    {
+                                        <a href="@item.ImagemCapaUrl" target="_blank" title="Visualizar Ampliada">
+                                            <img src="@item.ImagemCapaUrl" alt="Capa" style="width: 45px; height: 65px; object-fit: cover;" class="rounded border  shadow-sm" />
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded d-flex align-items-center justify-content-center" style="width: 45px; height: 65px;">
+                                            <i class="bi bi-image text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td class="fw-bold text-senac-blue">@item.Titulo</td>
+                                <td><span class="text-muted small">@(string.IsNullOrEmpty(item.Diretor) ? "-" : item.Diretor)</span></td>
+                                <td>@item.CategoriaNome</td>
+                                <td>@item.AnoLancamento</td>
+                                <td>
+                                    <span class="badge" style="background-color: @item.ClassificacaoCor">
+                                        @item.ClassificacaoNome
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.Ativo)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25"><i class="bi bi-check-circle me-1"></i>Ativo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25"><i class="bi bi-x-circle me-1"></i>Inativo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="small text-muted" data-date="@item.DataCadastro.ToString("yyyy-MM-ddTHH:mm:ss")">@item.DataCadastro.ToString("dd/MM/yyyy")</span>
+                                </td>
+                                <td class="text-end pe-3 text-nowrap">
+                                    <a asp-action="Visualizar" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info mb-1" title="Visualizar detalhes do filme" aria-label="Visualizar detalhes do filme" data-bs-toggle="tooltip">
+                                        <i class="bi bi-eye"></i> <span class="d-none d-lg-inline ms-1">Visualizar</span>
+                                    </a>
+                                    <a asp-action="Editar" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary mb-1" title="Editar informações do filme" aria-label="Editar informações do filme" data-bs-toggle="tooltip">
+                                        <i class="bi bi-pencil-square"></i> <span class="d-none d-lg-inline ms-1">Editar</span>
+                                    </a>
+
+                                    @if (item.Ativo)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-warning mb-1" title="Desativar filme (Soft Delete)" aria-label="Desativar filme (Soft Delete)" data-bs-toggle="tooltip" onclick="confirmarAcao('Desativar', @item.Id, 'desativar')">
+                                            <i class="bi bi-pause-circle"></i> <span class="d-none d-lg-inline ms-1">Desativar</span>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-success mb-1" title="Reativar filme" aria-label="Reativar filme" data-bs-toggle="tooltip" onclick="confirmarAcao('Reativar', @item.Id, 'reativar')">
+                                            <i class="bi bi-arrow-clockwise"></i> <span class="d-none d-lg-inline ms-1">Reativar</span>
+                                        </button>
+                                    }
+
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger mb-1" title="Excluir permanentemente" aria-label="Excluir permanentemente" data-bs-toggle="tooltip" onclick="confirmarExclusao(@item.Id)">
+                                            <i class="bi bi-trash"></i> <span class="d-none d-lg-inline ms-1">Excluir</span>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr id="linhaVazia">
+                            <td colspan="10" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Nenhum filme encontrado.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer  border-top  d-flex justify-content-between align-items-center py-3">
+        <span class="text-muted small" id="infoPaginacao">Mostrando todos os registros</span>
+        <nav aria-label="Navegação da tabela">
+            <ul class="pagination pagination-sm mb-0" id="ulPaginacao">
+                <!-- Paginação gerada via JS -->
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Formulários ocultos para POST das ações -->
+<form id="formAcoes" method="post" style="display:none;">
+    <input type="hidden" name="id" id="formAcoesId" />
+</form>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let currentStatusFilter = 'todos';
+        let registrosPorPagina = 10;
+        let paginaAtual = 1;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch total categories
+            fetch('/api/Categorias')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.dados) {
+                        document.getElementById('totalCategoriasCounter').innerText = data.dados.length;
+                    }
+                }).catch(e => {
+                    document.getElementById('totalCategoriasCounter').innerText = '-';
+                });
+
+            // Mensagens TempData
+            @if (TempData["Sucesso"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: '@TempData["Sucesso"]',
+                    background: '#212529',
+                    color: '#fff',
+                    confirmButtonColor: '#ff6b00'
+                });
+                </text>
+            }
+            @if (TempData["Erro"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '@TempData["Erro"]',
+                    background: '#212529',
+                    color: '#fff',
+                    confirmButtonColor: '#ff6b00'
+                });
+                </text>
+            }
+
+            // Inicializar Tooltips do Bootstrap
+            if (typeof bootstrap !== 'undefined') {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
+            aplicarFiltros();
+        });
+
+        function confirmarAcao(acao, id, verbo) {
+            Swal.fire({
+                title: acao === 'Desativar' ? 'Desativar Filme?' : 'Reativar Filme?',
+                text: acao === 'Desativar' ? "O filme não será mais exibido no catálogo." : "O filme voltará a ser exibido no catálogo.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: acao === 'Desativar' ? '#ffc107' : '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Sim, ${verbo}!`,
+                cancelButtonText: 'Cancelar',
+                background: '#212529',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('formAcoes');
+                    form.action = `/Admin/Filmes/${acao}`;
+                    document.getElementById('formAcoesId').value = id;
+                    form.submit();
+                }
+            });
+        }
+
+        function confirmarExclusao(id) {
+            Swal.fire({
+                title: 'Excluir Permanentemente?',
+                text: "Esta ação removerá definitivamente o filme do banco de dados e NÃO poderá ser desfeita.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar',
+                background: '#212529',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('formAcoes');
+                    form.action = `/Admin/Filmes/ExcluirPermanente`;
+                    document.getElementById('formAcoesId').value = id;
+                    form.submit();
+                }
+            });
+        }
+
+        function filtrarStatus(status) {
+            currentStatusFilter = status;
+            
+            // Atualizar botões
+            const botoes = document.querySelectorAll('.btn-group .btn');
+            botoes.forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            paginaAtual = 1;
+            aplicarFiltros();
+        }
+
+        function limparFiltros() {
+            document.getElementById('inputPesquisa').value = '';
+            document.getElementById('selectCategoria').value = '';
+            document.getElementById('selectClassificacao').value = '';
+            filtrarStatus('todos');
+        }
+
+        function aplicarFiltros() {
+            const texto = document.getElementById('inputPesquisa').value.toLowerCase();
+            const categoria = document.getElementById('selectCategoria').value;
+            const classificacao = document.getElementById('selectClassificacao').value;
+
+            const linhas = document.querySelectorAll('#tbodyFilmes tr:not(#linhaVazia)');
+            let visiveis = [];
+
+            linhas.forEach(linha => {
+                const trStatus = linha.getAttribute('data-status');
+                const trCategoria = linha.getAttribute('data-categoria');
+                const trClassificacao = linha.getAttribute('data-classificacao');
+                const trTexto = linha.getAttribute('data-texto').toLowerCase();
+
+                let matchStatus = currentStatusFilter === 'todos' || trStatus === currentStatusFilter;
+                let matchTexto = texto === '' || trTexto.includes(texto);
+                let matchCategoria = categoria === '' || trCategoria === categoria;
+                let matchClassificacao = classificacao === '' || trClassificacao === classificacao;
+
+                if (matchStatus && matchTexto && matchCategoria && matchClassificacao) {
+                    visiveis.push(linha);
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+
+            // Paginação
+            const total = visiveis.length;
+            const paginas = Math.ceil(total / registrosPorPagina) || 1;
+            
+            if (paginaAtual > paginas) paginaAtual = paginas;
+
+            const inicio = (paginaAtual - 1) * registrosPorPagina;
+            const fim = inicio + registrosPorPagina;
+
+            visiveis.forEach((linha, index) => {
+                if (index >= inicio && index < fim) {
+                    linha.style.display = '';
+                } else {
+                    linha.style.display = 'none';
+                }
+            });
+
+            atualizarPaginacao(paginas, total, inicio, Math.min(fim, total));
+        }
+
+        function atualizarPaginacao(totalPaginas, totalRegistros, inicio, fim) {
+            const ul = document.getElementById('ulPaginacao');
+            ul.innerHTML = '';
+            
+            if (totalRegistros === 0) {
+                document.getElementById('infoPaginacao').innerText = 'Nenhum registro encontrado';
+                return;
+            }
+
+            document.getElementById('infoPaginacao').innerText = `Mostrando ${inicio + 1} até ${fim} de ${totalRegistros} registros`;
+
+            // Prev
+            ul.innerHTML += `<li class="page-item ${paginaAtual === 1 ? 'disabled' : ''}">
+                <a class="page-link   " href="javascript:void(0)" onclick="mudarPagina(${paginaAtual - 1})">Anterior</a>
+            </li>`;
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                ul.innerHTML += `<li class="page-item ${i === paginaAtual ? 'active' : ''}">
+                    <a class="page-link ${i === paginaAtual ? 'bg-senac-orange border-senac-orange ' : '  '}" href="javascript:void(0)" onclick="mudarPagina(${i})">${i}</a>
+                </li>`;
+            }
+
+            // Next
+            ul.innerHTML += `<li class="page-item ${paginaAtual === totalPaginas ? 'disabled' : ''}">
+                <a class="page-link   " href="javascript:void(0)" onclick="mudarPagina(${paginaAtual + 1})">Próximo</a>
+            </li>`;
+        }
+
+        function mudarPagina(pagina) {
+            paginaAtual = pagina;
+            aplicarFiltros();
+        }
+
+        // Ordenação
+        let ordemDir = 'asc';
+        let colunaOrdenada = -1;
+
+        function ordenarTabela(colIndex, tipo) {
+            const tbody = document.getElementById("tbodyFilmes");
+            const linhas = Array.from(tbody.querySelectorAll("tr:not(#linhaVazia)"));
+            
+            if (linhas.length === 0) return;
+
+            ordemDir = (colunaOrdenada === colIndex && ordemDir === 'asc') ? 'desc' : 'asc';
+            colunaOrdenada = colIndex;
+
+            linhas.sort((a, b) => {
+                let valA, valB;
+                
+                if (tipo === 'date') {
+                    valA = a.cells[colIndex].querySelector('span').getAttribute('data-date');
+                    valB = b.cells[colIndex].querySelector('span').getAttribute('data-date');
+                } else {
+                    valA = a.cells[colIndex].innerText.trim();
+                    valB = b.cells[colIndex].innerText.trim();
+                }
+
+                if (tipo === 'num') {
+                    valA = parseFloat(valA) || 0;
+                    valB = parseFloat(valB) || 0;
+                } else if (tipo === 'str' || tipo === 'date') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return ordemDir === 'asc' ? -1 : 1;
+                if (valA > valB) return ordemDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            linhas.forEach(linha => tbody.appendChild(linha));
+            aplicarFiltros(); // re-aplica paginação
+        }
+    </script>
+    <style>
+        .cursor-pointer { cursor: pointer; }
+        .cursor-pointer:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .btn-senac-orange { background-color: #ff6b00; border-color: #ff6b00; color: white; }
+        .btn-senac-orange:hover { background-color: #e66000; border-color: #e66000; color: white; }
+        .text-senac-blue { color: #004a8f; }
+        .bg-senac-orange { background-color: #ff6b00; }
+        .border-senac-orange { border-color: #ff6b00; }
+    </style>
+}

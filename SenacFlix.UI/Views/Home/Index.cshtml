@@ -1,8 +1,171 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "SenacFlix — Filmes e séries, sem limites";
+    ViewData["FullScreen"] = true;
+    ViewData["NavbarClass"] = "navbar-transparent";
+
+    // Posters reais dos 50 filmes do catálogo SenacFlix (TMDB CDN público)
+    // Estes são os mesmos posters usados nos cards do catálogo — sem imagens quebradas.
+    var capas = new[]
+    {
+        // Ficção Científica
+        "https://image.tmdb.org/t/p/w342/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",  // Interestelar
+        "https://image.tmdb.org/t/p/w342/d5NXSklXo0qyIYkgV48Ziti0dkx.jpg",  // Duna
+        "https://image.tmdb.org/t/p/w342/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg",  // Duna Parte 2
+        "https://image.tmdb.org/t/p/w342/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",  // Matrix
+        "https://image.tmdb.org/t/p/w342/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",  // A Origem
+        "https://image.tmdb.org/t/p/w342/jRXYjXNq0Cs2TcJjLkki24MLp7u.jpg",  // Avatar
+        "https://image.tmdb.org/t/p/w342/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",  // Avatar 2
+        "https://image.tmdb.org/t/p/w342/k68nPLbIST6NP96JmTxmZijWhGb.jpg",  // Tenet
+        "https://image.tmdb.org/t/p/w342/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",  // Blade Runner 2049
+        "https://image.tmdb.org/t/p/w342/iJBraj7Nkl4RqBgguRQBz1VKXKM.jpg",  // Gravity
+        "https://image.tmdb.org/t/p/w342/r7vmZjiyZw9rpJMQJdXpjgiCOk9.jpg",  // Guardiões da Galáxia
+        "https://image.tmdb.org/t/p/w342/wqnLdwVXoBjKibFRR5U3y0aDUhs.jpg",  // Star Wars VII
+        "https://image.tmdb.org/t/p/w342/fNOH9f1aA7XRTzl1sAOx9iF553Q.jpg",  // De Volta para o Futuro
+
+        // Ação / Super-heróis
+        "https://image.tmdb.org/t/p/w342/8RW2runSEc34IwKN2D1aPcJd2UL.jpg",  // Batman Begins
+        "https://image.tmdb.org/t/p/w342/qJ2tW6WMUDux911r6m7haRef0WH.jpg",  // O Cavaleiro das Trevas
+        "https://image.tmdb.org/t/p/w342/or06FN3Dka5tukK1e9sl16pB3iy.jpg",  // Vingadores Ultimato
+        "https://image.tmdb.org/t/p/w342/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",  // Vingadores Guerra Infinita
+        "https://image.tmdb.org/t/p/w342/78lPtwv72eTNqFW9COBF8l6T0qg.jpg",  // Homem de Ferro
+        "https://image.tmdb.org/t/p/w342/uGBVl7yu7QoD5Vc3N47Zft9BQFN.jpg",  // Doutor Estranho
+        "https://image.tmdb.org/t/p/w342/62HCnUTHjWTObPnSPIOnczjmf5P.jpg",  // Top Gun Maverick
+        "https://image.tmdb.org/t/p/w342/fZPSd91yGE9fCcCe6OoQr6E3Bev.jpg",  // John Wick
+        "https://image.tmdb.org/t/p/w342/uxzzxijgPIY7slzFvMotPv8wjKA.jpg",  // Pantera Negra
+        "https://image.tmdb.org/t/p/w342/rzRwTcFvttcN1ZpX2znIiWMt8Wx.jpg",  // Thor Ragnarok
+        "https://image.tmdb.org/t/p/w342/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",  // Homem-Aranha SVpC
+        "https://image.tmdb.org/t/p/w342/AtsgWhDnHTq68L0lLsUrCnM7TjG.jpg",  // Capitã Marvel
+        "https://image.tmdb.org/t/p/w342/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg",  // Mad Max
+        "https://image.tmdb.org/t/p/w342/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg",  // Gladiador
+        "https://image.tmdb.org/t/p/w342/s1cxSaH8gFuXGGFyFVNOhlXaHkv.jpg",  // Missão Impossível
+        "https://image.tmdb.org/t/p/w342/dIWDFAMfGdPCabkOvxaGCbFNWRF.jpg",  // Rápidos e Furiosos 7
+
+        // Drama
+        "https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",  // Oppenheimer
+        "https://image.tmdb.org/t/p/w342/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",  // Coringa
+        "https://image.tmdb.org/t/p/w342/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",  // Clube da Luta
+        "https://image.tmdb.org/t/p/w342/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",  // Forrest Gump
+        "https://image.tmdb.org/t/p/w342/3bhkrj58Vtu7enYsLegHnDmni4v.jpg",  // O Poderoso Chefão
+        "https://image.tmdb.org/t/p/w342/ebSnODDg9lbsMIaWg2uAbjn7TO5.jpg",  // Dunkirk
+        "https://image.tmdb.org/t/p/w342/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",  // 1917
+        "https://image.tmdb.org/t/p/w342/ji3ecJphATlVgq9BBk1J7L1YgwS.jpg",  // The Revenant
+        "https://image.tmdb.org/t/p/w342/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg",  // Bohemian Rhapsody
+        "https://image.tmdb.org/t/p/w342/7fn624j5lj3xTme2SgiLCeuedmO.jpg",  // Whiplash
+        "https://image.tmdb.org/t/p/w342/pWHf4khOloNVfCxscsXFj3jj6gP.jpg",  // O Lobo de Wall Street
+        "https://image.tmdb.org/t/p/w342/vDwqPyhkzFPRDmwz9KbTN5jFxm3.jpg",  // Bastardos Inglórios
+        "https://image.tmdb.org/t/p/w342/8j58iEBw9pOXFD2L0nt0ZXeHviB.jpg",  // Era Uma Vez em Hollywood
+        "https://image.tmdb.org/t/p/w342/9xjZS2rlVxm8SFx8kPC3aIGCOYQ.jpg",  // Titanic
+
+        // Aventura / Outros
+        "https://image.tmdb.org/t/p/w342/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",  // Parasita
+        "https://image.tmdb.org/t/p/w342/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",  // LOTR Sociedade do Anel
+        "https://image.tmdb.org/t/p/w342/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",  // LOTR Retorno do Rei
+        "https://image.tmdb.org/t/p/w342/dkMD5qe2QiAMGhCrOFNnF3M5TGF.jpg",  // Jurassic World
+        "https://image.tmdb.org/t/p/w342/oU7Oq2kZm5cCGjRl3kfBnFXcjdA.jpg",  // Jurassic Park
+        "https://image.tmdb.org/t/p/w342/uDO8zWDhfWwoFdKS4fzkUJt0Rf0.jpg",  // La La Land
+        "https://image.tmdb.org/t/p/w342/5WJnGM9GKgMqXkd2PeWxnBtjfqO.jpg",  // Django Livre
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- ══════════════════════════════════════════════════
+     HERO FULLSCREEN — Mosaico de posters do catálogo animado
+     ══════════════════════════════════════════════════ -->
+<section class="hero-section">
+
+    @{
+        // Embaralha as capas para ser aleatório a cada reload
+        var rnd = new Random();
+        var capasEmbaralhadas = capas.OrderBy(x => rnd.Next()).ToArray();
+        
+        // Define as fatias para cada linha (12 filmes por linha)
+        var row1 = capasEmbaralhadas.Take(12).ToArray();
+        var row2 = capasEmbaralhadas.Skip(12).Take(12).ToArray();
+        var row3 = capasEmbaralhadas.Skip(24).Take(12).ToArray();
+        var row4 = capasEmbaralhadas.Skip(36).Take(12).ToArray();
+    }
+
+    <!-- Mosaico rotacionado animado -->
+    <div class="hero-mosaic-container" aria-hidden="true">
+        <!-- Linha 1: Esquerda -->
+        <div class="hero-mosaic-row scroll-left">
+            @foreach (var capa in row1.Concat(row1)) { <img src="@capa" alt="" loading="lazy" decoding="async" /> }
+        </div>
+        <!-- Linha 2: Direita -->
+        <div class="hero-mosaic-row scroll-right">
+            @foreach (var capa in row2.Concat(row2)) { <img src="@capa" alt="" loading="lazy" decoding="async" /> }
+        </div>
+        <!-- Linha 3: Esquerda -->
+        <div class="hero-mosaic-row scroll-left">
+            @foreach (var capa in row3.Concat(row3)) { <img src="@capa" alt="" loading="lazy" decoding="async" /> }
+        </div>
+        <!-- Linha 4: Direita -->
+        <div class="hero-mosaic-row scroll-right">
+            @foreach (var capa in row4.Concat(row4)) { <img src="@capa" alt="" loading="lazy" decoding="async" /> }
+        </div>
+    </div>
+
+    <!-- Máscaras de gradiente -->
+    <div class="hero-mask-center" aria-hidden="true"></div>
+    <div class="hero-mask-top"    aria-hidden="true"></div>
+    <div class="hero-mask-bottom" aria-hidden="true"></div>
+
+    <!-- Conteúdo central -->
+    <div class="hero-content">
+        <img src="~/images/logo.png" alt="SenacFlix" class="hero-logo" />
+
+        <h1 class="hero-title">
+            Filmes, séries e muito<br>mais, sem limites
+        </h1>
+
+        <p class="hero-subtitle">
+            Assista onde quiser. Cancele quando quiser.<br>
+            Conteúdo premium com a qualidade Senac.
+        </p>
+
+        <div class="hero-actions">
+            <a asp-controller="Conta" asp-action="Login"
+               class="btn btn-nf-play px-5 py-3 fs-5 fw-bold">
+                <i class="fa fa-sign-in-alt"></i> Entrar
+            </a>
+            <a asp-controller="Conta" asp-action="Registrar"
+               class="btn btn-senac-orange px-5 py-3 fs-5 fw-bold rounded">
+                Criar Conta &rsaquo;
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     FEATURES
+     ══════════════════════════════════════════════════ -->
+<section class="features-section">
+    <div class="container">
+        <div class="row g-5 text-center">
+
+            <div class="col-md-4 feature-item">
+                <div class="mb-3">
+                    <i class="fa fa-tv fa-3x" style="color:var(--senac-orange)"></i>
+                </div>
+                <h4>Aproveite na TV</h4>
+                <p>Assista em Smart TVs, PlayStation, Xbox, Chromecast, Apple TV e outros dispositivos.</p>
+            </div>
+
+            <div class="col-md-4 feature-item">
+                <div class="mb-3">
+                    <i class="fa fa-download fa-3x" style="color:var(--senac-orange)"></i>
+                </div>
+                <h4>Baixe para assistir offline</h4>
+                <p>Salve seus títulos favoritos e assista mesmo quando não tiver internet.</p>
+            </div>
+
+            <div class="col-md-4 feature-item">
+                <div class="mb-3">
+                    <i class="fa fa-heart fa-3x" style="color:var(--senac-orange)"></i>
+                </div>
+                <h4>Crie perfis e favorite</h4>
+                <p>Tenha sua própria lista de filmes favoritos salvos diretamente na sua conta.</p>
+            </div>
+
+        </div>
+    </div>
+</section>

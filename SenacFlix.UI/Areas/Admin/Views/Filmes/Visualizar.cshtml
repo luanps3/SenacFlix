@@ -1,0 +1,160 @@
+@model SenacFlix.UI.ViewModels.FilmeViewModel
+@{
+    ViewData["Title"] = "Visualizar Filme";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-eye me-2"></i>Detalhes do Filme</h2>
+    <div>
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-senac-orange px-4 py-2 fw-semibold shadow-sm me-2">
+            <i class="bi bi-pencil me-1"></i> Editar
+        </a>
+        <a asp-action="Index" class="btn btn-outline-light px-4 py-2 fw-semibold shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Informações Principais -->
+    <div class="col-lg-4">
+        <div class="card   shadow-sm mb-4">
+            @if(!string.IsNullOrEmpty(Model.ImagemCapaUrl))
+            {
+                <img src="@Model.ImagemCapaUrl" class="card-img-top" alt="Capa" style="object-fit: cover; max-height: 500px;" />
+            }
+            else
+            {
+                <div class="card-img-top bg-black d-flex justify-content-center align-items-center" style="height: 400px;">
+                    <div class="text-muted text-center">
+                        <i class="bi bi-image fs-1 d-block mb-2"></i>
+                        <span>Sem Capa</span>
+                    </div>
+                </div>
+            }
+            <div class="card-body">
+                <h4 class="card-title text-senac-blue fw-bold mb-3">@Model.Titulo</h4>
+                
+                <ul class="list-group list-group-flush ">
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-hash text-muted me-2"></i><strong>ID:</strong> @Model.Id
+                    </li>
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-tags text-muted me-2"></i><strong>Categoria:</strong> @Model.CategoriaNome
+                    </li>
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-calendar-event text-muted me-2"></i><strong>Ano:</strong> @Model.AnoLancamento
+                    </li>
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-clock text-muted me-2"></i><strong>Duração:</strong> @Model.DuracaoFormatada
+                    </li>
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-shield-check text-muted me-2"></i><strong>Classificação:</strong> 
+                        <span class="badge" style="background-color: @Model.ClassificacaoCor">@Model.ClassificacaoNome</span>
+                    </li>
+                    <li class="list-group-item    px-0">
+                        <i class="bi bi-activity text-muted me-2"></i><strong>Status:</strong> 
+                        @if (Model.Ativo)
+                        {
+                            <span class="text-success"><i class="bi bi-check-circle me-1"></i>Ativo</span>
+                        }
+                        else
+                        {
+                            <span class="text-warning"><i class="bi bi-x-circle me-1"></i>Inativo</span>
+                        }
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalhes e Mídia -->
+    <div class="col-lg-8">
+        @if(!string.IsNullOrEmpty(Model.ImagemBannerUrl))
+        {
+            <div class="card   shadow-sm mb-4 overflow-hidden">
+                <img src="@Model.ImagemBannerUrl" class="img-fluid w-100" style="max-height: 300px; object-fit: cover;" alt="Banner" />
+            </div>
+        }
+
+        <div class="card   shadow-sm mb-4">
+            <div class="card-header    fw-bold py-3">
+                <i class="bi bi-info-circle me-2 text-senac-blue"></i>Sinopse e Produção
+            </div>
+            <div class="card-body">
+                <h5 class="fw-bold mb-3">Sinopse</h5>
+                <p class="" style="line-height: 1.6;">@Model.Descricao</p>
+
+                <hr class="my-4">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted text-uppercase small mb-2">Diretor</h6>
+                        <p class=""><i class="bi bi-person-video me-2 text-senac-blue"></i>@(string.IsNullOrEmpty(Model.Diretor) ? "Não informado" : Model.Diretor)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted text-uppercase small mb-2">Elenco Principal</h6>
+                        <p class=""><i class="bi bi-people me-2 text-senac-blue"></i>@(string.IsNullOrEmpty(Model.Elenco) ? "Não informado" : Model.Elenco)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.UrlEmbedTrailer))
+        {
+            <div class="card   shadow-sm mb-4">
+                <div class="card-header    fw-bold py-3">
+                    <i class="bi bi-play-btn me-2 text-senac-blue"></i>Trailer Oficial
+                </div>
+                <div class="card-body p-0">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="@Model.UrlEmbedTrailer" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Informações de Auditoria -->
+        <div class="card   shadow-sm">
+            <div class="card-header    fw-bold py-3">
+                <i class="bi bi-clock-history me-2 text-senac-blue"></i>Histórico
+            </div>
+            <div class="card-body">
+                <div class="row text-muted small">
+                    <div class="col-md-4">
+                        <strong class="d-block  mb-1">Cadastrado em:</strong>
+                        <i class="bi bi-calendar-plus me-1"></i>@Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                    <div class="col-md-4">
+                        <strong class="d-block  mb-1">Última Atualização:</strong>
+                        @if (Model.DataAtualizacao.HasValue)
+                        {
+                            <span class="text-info"><i class="bi bi-pencil-square me-1"></i>@Model.DataAtualizacao.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <strong class="d-block  mb-1">Desativado em:</strong>
+                        @if (Model.DataExclusao.HasValue)
+                        {
+                            <span class="text-warning"><i class="bi bi-archive me-1"></i>@Model.DataExclusao.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-senac-orange { background-color: #ff6b00; border-color: #ff6b00; color: white; }
+    .btn-senac-orange:hover { background-color: #e66000; border-color: #e66000; color: white; }
+    .text-senac-blue { color: #004a8f; }
+</style>
