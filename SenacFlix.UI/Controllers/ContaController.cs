@@ -34,7 +34,7 @@ namespace SenacFlix.API.Controllers
                 return View(model);
 
             //Chama a API de login
-            var resposta = await _api.PostAsync<LoginRespostaApi, LoginViewModel>("/api/Autenticacao/login", model);
+            var resposta = await _api.PostAsync<LoginRespostaApi, LoginViewModel>("/api/Auth/login", model);
 
             if (resposta.Sucesso && resposta.Dados != null)
             {
@@ -116,7 +116,7 @@ namespace SenacFlix.API.Controllers
                 DataNascimento = model.DataNascimento.ToString("yyyy-MM-dd")
             };
 
-            var resposta = await _api.PostAsync<object, object>("/api/Autenticacao/registrar", dto);
+            var resposta = await _api.PostAsync<object, object>("/api/Auth/registrar", dto);
 
             if (resposta.Sucesso)
             {

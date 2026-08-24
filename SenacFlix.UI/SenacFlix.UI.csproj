@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Filmes\" />
-    <Folder Include="Areas\Cliente\Controllers\" />
-    <Folder Include="ViewComponents\" />
   </ItemGroup>
 
 </Project>
