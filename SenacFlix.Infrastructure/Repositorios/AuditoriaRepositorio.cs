@@ -1,8 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+// Nome do arquivo: AuditoriaRepositorio.cs
+// Objetivo: Repositorio de auditoria
+// Camada: Infrastructure
+// Como participa: Grava e recupera logs
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SenacFlix.Domain.Entidades;
 using SenacFlix.Domain.Interfaces;
 using SenacFlix.Infrastructure.Dados;
-
 
 namespace SenacFlix.Infrastructure.Repositorios
 {

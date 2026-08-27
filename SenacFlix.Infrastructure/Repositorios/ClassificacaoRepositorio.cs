@@ -1,4 +1,11 @@
-﻿
+// Nome do arquivo: ClassificacaoRepositorio.cs
+// Objetivo: Repositorio de classificacao indicativa
+// Camada: Infrastructure
+// Como participa: Consulta a tabela de classificacoes
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SenacFlix.Domain.Entidades;
 using SenacFlix.Domain.Interfaces;
@@ -10,8 +17,6 @@ namespace SenacFlix.Infrastructure.Repositorios
     {
         private readonly SenacFlixContexto _contexto;
 
-        // Injeção de depêndencia do Contexto +
-        // Encapsulamento do contexto em um repositório para acesso a dados.
         public ClassificacaoRepositorio(SenacFlixContexto contexto)
         {
             _contexto = contexto;
@@ -26,7 +31,8 @@ namespace SenacFlix.Infrastructure.Repositorios
 
         public async Task<ClassificacaoIndicativa?> ObterPorIdAsync(int id)
         {
-            return await _contexto.ClassificacoesIndicativas.FirstOrDefaultAsync(classificacao => classificacao.Id == id);
-        } 
+            return await _contexto.ClassificacoesIndicativas
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
     }
 }

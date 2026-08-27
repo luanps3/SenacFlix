@@ -14,8 +14,6 @@ namespace SenacFlix.Application.DTOs
         public int TotalClientes { get; set; }
         public int TotalFavoritos { get; set; }
 
-        //Lista de tipo referêncial, criação de lista de GraficoItemDto,
-        //cada item da lista contém Label e Valor
         public List<GraficoItemDto> FilmesPorCategoria { get; set; } = new();
         public List<GraficoItemDto> FilmesPorClassificacao { get; set; } = new();
         public List<GraficoItemDto> FilmesPorAno { get; set; } = new();

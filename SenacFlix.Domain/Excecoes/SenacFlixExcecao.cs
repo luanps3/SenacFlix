@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nome:         SenacFlixExcecao.cs
 // Objetivo:     Define a classe base de excecoes personalizadas do SenacFlix.
 //               Permite que a camada de Application lance erros de negocio
@@ -10,7 +10,7 @@
 //               titulo duplicado, usuario sem idade para acessar conteudo 18+.
 // ============================================================
 
-namespace SenacFlix.Domain.Excecoes
+namespace SenacFlix.Domain.Excecoes // Define o namespace da camada de dominio, pasta Excecoes
 {
     /// <summary>
     /// Excecao base personalizada do dominio SenacFlix.
@@ -19,52 +19,45 @@ namespace SenacFlix.Domain.Excecoes
     /// Use esta excecao (ou suas subclasses) para sinalizar violacoes de negocio.
     /// Nao use para erros de infraestrutura (banco de dados, rede, arquivos).
     /// </summary>
-    public class SenacFlixExcecao : Exception // Herda de Exception: classe raiz de todas as excessões no .NET
+    public class SenacFlixExcecao : Exception // Herda de Exception: classe raiz de todas as excecoes no .NET
     {
-        //======================================================
+        // --------------------------------------------------------
         // Construtores
-        //======================================================
+        // --------------------------------------------------------
 
         /// <summary>
-        /// Construtor padrão sem argumentos
-        /// Cria uma exceção com mensagem genérica
-        /// Raramente usado diretamente; prefira os construtores com mensagem
+        /// Construtor padrao sem argumentos.
+        /// Cria uma excecao com mensagem generica.
+        /// Raramente usado diretamente; prefira os construtores com mensagem.
         /// </summary>
-        public SenacFlixExcecao() // Construtor sem parametros: chama o construtor base de Exception sem argumentos.
-            : base("Ocorreu um erro na plataforma SenacFlix") // Mensagem padrão em português para o caso de uso sem mensagem específica
-
-        { 
-              // Corpo vazio: toda a lógica esta na chamada ao construtor base      
-        }
-
-        /// <summary>
-        /// Construtor com mensagem de erro descritiva
-        /// Use este construtor para informar ao usuario/log o que ocorreu errado
-        /// </summary>
-        /// <param name="mensagem">Descrição clara, detalhada e objetiva do erro de negócio ocorrido</param>
-        public SenacFlixExcecao(string mensagem)
-            : base(mensagem) 
+        public SenacFlixExcecao() // Construtor sem parametros: chama o construtor base de Exception sem argumentos
+            : base("Ocorreu um erro na plataforma SenacFlix.") // Mensagem padrao em portugues para o caso de uso sem mensagem especifica
         {
-            // Corpo vazio: a mensagem é gerenciada pelo Exception base
+            // Corpo vazio: toda a logica esta na chamada ao construtor base
         }
 
         /// <summary>
-        /// Construtor com mensagem de exceção interna (inner exception).
-        /// Use este construtor quando quiser encapsular uma excecao técnica (ex: DbException)
+        /// Construtor com mensagem de erro descritiva.
+        /// Use este construtor para informar ao usuario/log o que ocorreu de errado.
         /// </summary>
-        /// <param name="mensagem">Descrição clara, detalhada e objetiva do erro de negócio ocorrido</param>
-        public SenacFlixExcecao(string mensagem, Exception excecaoInterna) // Construtor  com inner exception para rastreabilidade
-            : base(mensagem, excecaoInterna) // Repassa mensagem e exceção para o contrutor base de Exception
+        /// <param name="mensagem">Descricao clara e objetiva do erro de negocio ocorrido.</param>
+        public SenacFlixExcecao(string mensagem) // Construtor com mensagem: o mais utilizado no dia a dia
+            : base(mensagem) // Repassa a mensagem para o construtor base de Exception
         {
-            // Corpo vazio: a mensagem é gerenciada pelo Exception base
+            // Corpo vazio: a mensagem e gerenciada pelo Exception base
         }
 
-
-
-
-
-
-
-
+        /// <summary>
+        /// Construtor com mensagem e excecao interna (inner exception).
+        /// Use este construtor quando quiser encapsular uma excecao tecnica (ex: DbException)
+        /// dentro de uma excecao de negocio, preservando o rastreamento de pilha original.
+        /// </summary>
+        /// <param name="mensagem">Descricao do erro de negocio.</param>
+        /// <param name="excecaoInterna">A excecao tecnica original que causou este erro.</param>
+        public SenacFlixExcecao(string mensagem, Exception excecaoInterna) // Construtor com inner exception para rastreabilidade
+            : base(mensagem, excecaoInterna) // Repassa mensagem e excecao interna para o construtor base de Exception
+        {
+            // Corpo vazio: tanto a mensagem quanto a excecao interna sao gerenciadas pelo Exception base
+        }
     }
 }

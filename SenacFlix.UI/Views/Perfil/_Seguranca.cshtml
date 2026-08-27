@@ -1,0 +1,25 @@
+@model SenacFlix.UI.ViewModels.PerfilViewModel
+
+<form asp-action="AlterarSenha" method="post">
+    <div class="mb-4">
+        <label asp-for="AlterarSenha.SenhaAtual" class="form-label text-muted">Senha Atual</label>
+        <input asp-for="AlterarSenha.SenhaAtual" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium); max-width: 400px;" />
+        <span asp-validation-for="AlterarSenha.SenhaAtual" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="AlterarSenha.NovaSenha" class="form-label text-muted">Nova Senha</label>
+        <input asp-for="AlterarSenha.NovaSenha" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium); max-width: 400px;" />
+        <span asp-validation-for="AlterarSenha.NovaSenha" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="AlterarSenha.ConfirmarNovaSenha" class="form-label text-muted">Confirmar Nova Senha</label>
+        <input asp-for="AlterarSenha.ConfirmarNovaSenha" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium); max-width: 400px;" />
+        <span asp-validation-for="AlterarSenha.ConfirmarNovaSenha" class="text-danger small"></span>
+    </div>
+
+    <div class="d-flex justify-content-start">
+        <button type="submit" class="btn btn-danger btn-lg px-5">Alterar Senha</button>
+    </div>
+</form>

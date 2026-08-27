@@ -1,4 +1,4 @@
-﻿@model SenacFlix.UI.ViewModels.DashboardEstatisticasViewModel
+@model SenacFlix.UI.ViewModels.DashboardEstatisticasViewModel
 @using System.Text.Json
 @{
     ViewData["Title"] = "Dashboard Admin";
@@ -129,7 +129,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="col-xl-3 col-lg-4 col-sm-6 mb-4">
         <div class="admin-stat-card" style="border-left: 4px solid #17a2b8;">
             <div class="admin-stat-icon-box bg-info bg-opacity-10 text-info">
@@ -211,7 +211,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="col-lg-6 mb-4">
         <div class="card h-100 shadow-sm border-0" style="background-color: var(--nf-card); border-radius:12px;">
             <div class="card-body">
@@ -274,93 +274,93 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-                const dashboardData = @Html.Raw(modelJson);
-                const cores = ['#f19f00', '#005EB8', '#28a745', '#dc3545', '#17a2b8', '#6610f2', '#e83e8c', '#fd7e14', '#20c997', '#6c757d', '#343a40', '#0d6efd'];
-                const rootStyle = getComputedStyle(document.documentElement);
-                const textColor = rootStyle.getPropertyValue('--nf-text').trim() || '#adb5bd';
-                const gridColor = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
-                Chart.defaults.color = textColor;
-                Chart.defaults.font.family = "'Inter', 'Helvetica Neue', Arial, sans-serif";
+        const dashboardData = @Html.Raw(modelJson);
+        const cores = ['#f19f00', '#005EB8', '#28a745', '#dc3545', '#17a2b8', '#6610f2', '#e83e8c', '#fd7e14', '#20c997', '#6c757d', '#343a40', '#0d6efd'];
+        const rootStyle = getComputedStyle(document.documentElement);
+        const textColor = rootStyle.getPropertyValue('--nf-text').trim() || '#adb5bd';
+        const gridColor = document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font.family = "'Inter', 'Helvetica Neue', Arial, sans-serif";
 
-                if (dashboardData.filmesPorCategoria && dashboardData.filmesPorCategoria.length > 0) {
-                    new Chart(document.getElementById('chartGeneros'), {
-                        type: 'pie',
-                        data: {
-                            labels: dashboardData.filmesPorCategoria.map(x => x.label),
-                            datasets: [{
-                                data: dashboardData.filmesPorCategoria.map(x => x.valor),
-                                backgroundColor: cores,
-                                borderWidth: 0
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-                    });
-                }
+        if (dashboardData.filmesPorCategoria && dashboardData.filmesPorCategoria.length > 0) {
+            new Chart(document.getElementById('chartGeneros'), {
+                type: 'pie',
+                data: {
+                    labels: dashboardData.filmesPorCategoria.map(x => x.label),
+                    datasets: [{
+                        data: dashboardData.filmesPorCategoria.map(x => x.valor),
+                        backgroundColor: cores,
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+        }
 
-                if (dashboardData.filmesPorClassificacao && dashboardData.filmesPorClassificacao.length > 0) {
-                    new Chart(document.getElementById('chartClassificacao'), {
-                        type: 'doughnut',
-                        data: {
-                            labels: dashboardData.filmesPorClassificacao.map(x => x.label),
-                            datasets: [{
-                                data: dashboardData.filmesPorClassificacao.map(x => x.valor),
-                                backgroundColor: ['#00B150','#00AEEF','#F8C300','#F37021','#ED1C24','#343a40'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, cutout: '70%' }
-                    });
-                }
+        if (dashboardData.filmesPorClassificacao && dashboardData.filmesPorClassificacao.length > 0) {
+            new Chart(document.getElementById('chartClassificacao'), {
+                type: 'doughnut',
+                data: {
+                    labels: dashboardData.filmesPorClassificacao.map(x => x.label),
+                    datasets: [{
+                        data: dashboardData.filmesPorClassificacao.map(x => x.valor),
+                        backgroundColor: ['#00B150','#00AEEF','#F8C300','#F37021','#ED1C24','#343a40'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, cutout: '70%' }
+            });
+        }
 
-                if (dashboardData.filmesPorAno && dashboardData.filmesPorAno.length > 0) {
-                    new Chart(document.getElementById('chartAno'), {
-                        type: 'line',
-                        data: {
-                            labels: dashboardData.filmesPorAno.map(x => x.label),
-                            datasets: [{
-                                label: 'Filmes',
-                                data: dashboardData.filmesPorAno.map(x => x.valor),
-                                borderColor: '#005EB8',
-                                backgroundColor: 'rgba(0, 94, 184, 0.1)',
-                                pointBackgroundColor: '#f19f00',
-                                fill: true,
-                                tension: 0.4
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
-                    });
-                }
+        if (dashboardData.filmesPorAno && dashboardData.filmesPorAno.length > 0) {
+            new Chart(document.getElementById('chartAno'), {
+                type: 'line',
+                data: {
+                    labels: dashboardData.filmesPorAno.map(x => x.label),
+                    datasets: [{
+                        label: 'Filmes',
+                        data: dashboardData.filmesPorAno.map(x => x.valor),
+                        borderColor: '#005EB8',
+                        backgroundColor: 'rgba(0, 94, 184, 0.1)',
+                        pointBackgroundColor: '#f19f00',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+            });
+        }
 
-                if (dashboardData.usuariosPorPerfil && dashboardData.usuariosPorPerfil.length > 0) {
-                    new Chart(document.getElementById('chartUsuarios'), {
-                        type: 'bar',
-                        data: {
-                            labels: dashboardData.usuariosPorPerfil.map(x => x.label),
-                            datasets: [{
-                                label: 'Usuários',
-                                data: dashboardData.usuariosPorPerfil.map(x => x.valor),
-                                backgroundColor: ['#e83e8c', '#6c757d', '#17a2b8'],
-                                borderRadius: 4
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
-                    });
-                }
+        if (dashboardData.usuariosPorPerfil && dashboardData.usuariosPorPerfil.length > 0) {
+            new Chart(document.getElementById('chartUsuarios'), {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.usuariosPorPerfil.map(x => x.label),
+                    datasets: [{
+                        label: 'Usuários',
+                        data: dashboardData.usuariosPorPerfil.map(x => x.valor),
+                        backgroundColor: ['#e83e8c', '#6c757d', '#17a2b8'],
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: gridColor } }, x: { grid: { display: false } } } }
+            });
+        }
 
-                if (dashboardData.top10FilmesFavoritados && dashboardData.top10FilmesFavoritados.length > 0) {
-                    new Chart(document.getElementById('chartTopFavoritos'), {
-                        type: 'bar',
-                        data: {
-                            labels: dashboardData.top10FilmesFavoritados.map(x => x.label),
-                            datasets: [{
-                                label: 'Favoritos',
-                                data: dashboardData.top10FilmesFavoritados.map(x => x.valor),
-                                backgroundColor: '#f19f00',
-                                borderRadius: 4
-                            }]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: gridColor } }, y: { grid: { display: false } } } }
-                    });
-                }
+        if (dashboardData.top10FilmesFavoritados && dashboardData.top10FilmesFavoritados.length > 0) {
+            new Chart(document.getElementById('chartTopFavoritos'), {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.top10FilmesFavoritados.map(x => x.label),
+                    datasets: [{
+                        label: 'Favoritos',
+                        data: dashboardData.top10FilmesFavoritados.map(x => x.valor),
+                        backgroundColor: '#f19f00',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: gridColor } }, y: { grid: { display: false } } } }
+            });
+        }
     </script>
 }

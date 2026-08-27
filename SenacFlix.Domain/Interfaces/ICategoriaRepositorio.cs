@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nome:         ICategoriaRepositorio.cs
 // Objetivo:     Define o contrato de acesso a dados para a entidade Categoria
 //               no SenacFlix. Permite que a camada de Application opere sobre

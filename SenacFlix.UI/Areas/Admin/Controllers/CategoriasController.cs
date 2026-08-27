@@ -1,26 +1,30 @@
-﻿using Microsoft.AspNetCore.Authorization;
+// Nome do arquivo: CategoriasController.cs
+// Objetivo: Gerenciamento de categorias pelo admin (CRUD)
+// Camada: UI
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SenacFlix.UI.Infraestrutura;
 using SenacFlix.UI.Servicos;
 using SenacFlix.UI.ViewModels;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SenacFlix.UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin, Operador")]
+    [Authorize(Roles = "Admin,Operador")]
     public class CategoriasController : Controller
     {
         private readonly ApiCliente _api;
-
 
         public CategoriasController(ApiCliente api)
         {
             _api = api;
         }
 
-        // Este index não possui verbos HTTP , pois é o padrão do MVC. O verbo HTTP GET é o padrão para ações de exibição de páginas.
         public async Task<IActionResult> Index()
         {
-            //Coalescência Nula (??) - Se a resposta.Dados for nula, será retornada uma lista vazia de CategoriaViewModel   
             var resposta = await _api.GetAsync<IEnumerable<CategoriaViewModel>>("/api/Categorias/todas");
             return View(resposta.Dados ?? new List<CategoriaViewModel>());
         }
@@ -30,7 +34,6 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
         {
             return View(new CategoriaEdicaoViewModel());
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Criar(CategoriaEdicaoViewModel model)
@@ -51,16 +54,12 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
             if (resposta.Sucesso)
             {
                 TempData["Sucesso"] = "Categoria criada com sucesso!";
-                // nameof(Index) é uma forma de referenciar o nome do método Index de forma segura, evitando erros de digitação.
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError("", resposta.Mensagem ?? "Erro ao criar categoria.");
+            ModelState.AddModelError("", resposta.Mensagem ?? "Erro desconhecido.");
             return View(model);
-
-
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
@@ -79,8 +78,8 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
                 Nome = c.Nome,
                 Descricao = c.Descricao
             };
-            return View(model);
 
+            return View(model);
         }
 
         [HttpPost]
@@ -105,7 +104,7 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError("", resposta.Mensagem ?? "Erro ao atualizar categoria.");
+            ModelState.AddModelError("", resposta.Mensagem ?? "Erro desconhecido.");
             return View(model);
         }
 
@@ -114,7 +113,7 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
         {
             var resposta = await _api.DeleteAsync<object>($"/api/Categorias/{id}/desativar");
             if (resposta.Sucesso)
-                TempData["Sucesso"] = "Categoria desativada com sucesso!";
+                TempData["Sucesso"] = "Categoria inativada com sucesso.";
             else
                 TempData["Erro"] = resposta.Mensagem;
 
@@ -124,9 +123,9 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Reativar(int id)
         {
-            var resposta = await _api.PutAsync<object, object>($"/api/Categorias/{id}/reativar", new{ });
+            var resposta = await _api.PutAsync<object, object>($"/api/Categorias/{id}/reativar", new { });
             if (resposta.Sucesso)
-                TempData["Sucesso"] = "Categoria reativada com sucesso!";
+                TempData["Sucesso"] = "Categoria reativada com sucesso.";
             else
                 TempData["Erro"] = resposta.Mensagem;
 
@@ -135,15 +134,15 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ExcluirPermanentemente(int id)
+        public async Task<IActionResult> ExcluirPermanente(int id)
         {
             var resposta = await _api.DeleteAsync<object>($"/api/Categorias/{id}/permanente");
             if (resposta.Sucesso)
-                TempData["Sucesso"] = "Categoria excluída permanentemente!";
+                TempData["Sucesso"] = "Categoria excluída permanentemente.";
             else
                 TempData["Erro"] = resposta.Mensagem;
+
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

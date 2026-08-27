@@ -1,4 +1,4 @@
-﻿// Nome do arquivo: SenacFlixContexto.cs
+// Nome do arquivo: SenacFlixContexto.cs
 // Objetivo: Contexto principal do Entity Framework Core da aplicacao SenacFlix.
 //           Representa a "ponte" entre o codigo C# e o banco de dados SQL Server.
 //           Contem todos os DbSets (tabelas) e as configuracoes de relacionamentos.
@@ -6,35 +6,42 @@
 // Como participa: E injetado nos repositorios via Dependency Injection.
 //                 E responsavel por todas as operacoes de leitura e escrita no banco.
 
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using SenacFlix.Domain.Entidades;
+using Microsoft.AspNetCore.Identity;                         // Importa o Identity para usar IdentityDbContext
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;     // Importa a integracao do Identity com EF Core
+using Microsoft.EntityFrameworkCore;                         // Importa o Entity Framework Core
+using SenacFlix.Domain.Entidades;                            // Importa as entidades do dominio
 
-namespace SenacFlix.Infrastructure.Dados
+namespace SenacFlix.Infrastructure.Dados                     // Namespace da camada de infraestrutura, pasta Dados
 {
     // SenacFlixContexto herda de IdentityDbContext<ApplicationUser>
-    // Isso significa que o EF(Entity Framework) gerencia automaticamente as tabelas do Identity
-    // (usuairos, roles, claims, etc...) além das nossas tabelas customizadas
+    // Isso significa que o EF Core gerencia automaticamente as tabelas do Identity
+    // (usuarios, roles, claims, etc.) alem das nossas tabelas customizadas
     public class SenacFlixContexto : IdentityDbContext<ApplicationUser>
     {
-        //Construtor que recebe as opções de configuração do DbContext
-        // As opcoes vem da injeção de dependência (configurado no Program.cs via
-        // DI(Dependency Injection))
-        public SenacFlixContexto(DbContextOptions<SenacFlixContexto> opcoes) 
-            : base(opcoes)// Repassa as opções para a classe pai(IdentityDbContext)
+        // Constructor que recebe as opcoes de configuracao do DbContext
+        // As opcoes vem da injecao de dependencia (configurado no Program.cs via DI)
+        public SenacFlixContexto(DbContextOptions<SenacFlixContexto> opcoes)
+            : base(opcoes)  // Repassa as opcoes para a classe pai (IdentityDbContext)
         {
         }
 
         // DbSet representa uma tabela no banco de dados
         // Cada propriedade aqui gera uma tabela correspondente via migration
+
+        // Tabela de filmes cadastrados na plataforma
         public DbSet<Filme> Filmes { get; set; } = null!;
+
+        // Tabela de categorias de filmes (Acao, Drama, Comedia, etc.)
         public DbSet<Categoria> Categorias { get; set; } = null!;
+
+        // Tabela de filmes favoritados pelos usuarios
         public DbSet<Favorito> Favoritos { get; set; } = null!;
+
+        // Tabela de logs de auditoria (registra acoes dos usuarios)
         public DbSet<Auditoria> Auditorias { get; set; } = null!;
+
+        // Tabela de classificacoes indicativas (Livre, 10, 12, 14, 16, 18 anos)
         public DbSet<ClassificacaoIndicativa> ClassificacoesIndicativas { get; set; } = null!;
-
-
 
         // OnModelCreating e chamado pelo EF Core ao criar o modelo do banco de dados
         // Aqui configuramos relacionamentos, restricoes e comportamentos usando Fluent API
@@ -209,8 +216,5 @@ namespace SenacFlix.Infrastructure.Dados
             // ================================================================
             // Os dados iniciais agora sao injetados nativamente via SQL na migration SeedData.
         }
-
-
-
     }
 }

@@ -1,0 +1,51 @@
+@model SenacFlix.UI.ViewModels.PerfilViewModel
+
+<form asp-action="SalvarDadosPessoais" method="post">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label asp-for="DadosPessoais.Nome" class="form-label text-muted">Nome</label>
+            <input asp-for="DadosPessoais.Nome" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium);" />
+            <span asp-validation-for="DadosPessoais.Nome" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DadosPessoais.Sobrenome" class="form-label text-muted">Sobrenome</label>
+            <input asp-for="DadosPessoais.Sobrenome" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium);" />
+            <span asp-validation-for="DadosPessoais.Sobrenome" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label asp-for="DadosPessoais.Email" class="form-label text-muted">E-mail</label>
+            <input asp-for="DadosPessoais.Email" type="email" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium);" />
+            <span asp-validation-for="DadosPessoais.Email" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DadosPessoais.Telefone" class="form-label text-muted">Telefone (Opcional)</label>
+            <input asp-for="DadosPessoais.Telefone" class="form-control bg-dark text-white" style="border-color: var(--nf-gray-medium);" />
+            <span asp-validation-for="DadosPessoais.Telefone" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <hr style="border-color: var(--nf-gray-medium);" />
+    <h5 class="mb-3 text-muted">Informações da Conta</h5>
+    
+    <div class="row mb-4 text-muted small">
+        <div class="col-md-4 mb-2">
+            <strong>Cargo/Perfil:</strong><br/>
+            @Model.Cargo
+        </div>
+        <div class="col-md-4 mb-2">
+            <strong>Data de Cadastro:</strong><br/>
+            @Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")
+        </div>
+        <div class="col-md-4 mb-2">
+            <strong>Status da Conta:</strong><br/>
+            @Model.StatusConta
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-danger btn-lg px-5">Salvar Alterações</button>
+    </div>
+</form>

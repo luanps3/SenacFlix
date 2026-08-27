@@ -1,4 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+// Nome do arquivo: FilmeRepositorio.cs
+// Objetivo: Repositorio para acesso aos dados de Filme
+// Camada: Infrastructure
+// Como participa: Interage com SenacFlixContexto para realizar operacoes de CRUD em Filmes
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SenacFlix.Domain.Entidades;
 using SenacFlix.Domain.Interfaces;
 using SenacFlix.Infrastructure.Dados;
@@ -16,18 +25,13 @@ namespace SenacFlix.Infrastructure.Repositorios
 
         public async Task<IEnumerable<Filme>> ObterTodosAsync(bool incluirInativos = false)
         {
-            // IQueryable representa uma consulta que pode ser executada em uma fonte de dados.
-            // Ele permite construir consultas de forma flexível e eficiente,
-            // sem executar a consulta imediatamente.
-           
             IQueryable<Filme> query = _contexto.Filmes
-                .Include(filme => filme.Categoria)
-                .Include(filme => filme.ClassificacaoIndicativa);
+                .Include(f => f.Categoria)
+                .Include(f => f.ClassificacaoIndicativa);
 
-            // Se incluirInativos for false, filtra apenas os filmes ativos
             if (!incluirInativos)
             {
-                query = query.Where(filme => filme.Ativo);
+                query = query.Where(f => f.Ativo);
             }
 
             return await query.ToListAsync();
@@ -36,33 +40,33 @@ namespace SenacFlix.Infrastructure.Repositorios
         public async Task<Filme?> ObterPorIdAsync(int id)
         {
             return await _contexto.Filmes
-                .Include(filme => filme.Categoria)
-                .Include(filme => filme.ClassificacaoIndicativa)
-                .FirstOrDefaultAsync(filme => filme.Id == id);
+                .Include(f => f.Categoria)
+                .Include(f => f.ClassificacaoIndicativa)
+                .FirstOrDefaultAsync(f => f.Id == id);
         }
 
         public async Task<IEnumerable<Filme>> BuscarAsync(string? termo, int? categoriaId = null)
         {
             var query = _contexto.Filmes
-                .Include(filme => filme.Categoria)
-                .Include(filme => filme.ClassificacaoIndicativa)
-                .Where(filme => filme.Ativo);
+                .Include(f => f.Categoria)
+                .Include(f => f.ClassificacaoIndicativa)
+                .Where(f => f.Ativo);
 
             if (categoriaId.HasValue && categoriaId.Value > 0)
             {
-                query = query.Where(filme => filme.CategoriaId == categoriaId.Value);
+                query = query.Where(f => f.CategoriaId == categoriaId.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(termo))
             {
+                // Para ignorar case e acentos (dependendo do Collation do DB, o Like já resolve isso nativamente)
                 var t = $"%{termo}%";
-                // EF.Functions.Like é usado para realizar uma comparação de padrão SQL,
-                // permitindo o uso de curingas como %
-                query = query.Where(filme => 
-                EF.Functions.Like(filme.Titulo, t) ||
-                EF.Functions.Like(filme.Descricao, t) ||
-                (filme.Diretor != null && EF.Functions.Like(filme.Diretor, t)) ||
-                EF.Functions.Like(filme.Categoria.Nome, t)
+                query = query.Where(f =>
+                    EF.Functions.Like(f.Titulo, t) ||
+                    EF.Functions.Like(f.Descricao, t) ||
+                    (f.Diretor != null && EF.Functions.Like(f.Diretor, t)) ||
+                    (f.Elenco != null && EF.Functions.Like(f.Elenco, t)) ||
+                    EF.Functions.Like(f.Categoria.Nome, t)
                 );
             }
 
@@ -72,9 +76,9 @@ namespace SenacFlix.Infrastructure.Repositorios
         public async Task<IEnumerable<Filme>> ObterPorCategoriaAsync(int categoriaId)
         {
             return await _contexto.Filmes
-                .Include(filme => filme.Categoria)
-                .Include(filme => filme.ClassificacaoIndicativa)
-                .Where(filme => filme.CategoriaId == categoriaId && filme.Ativo)
+                .Include(f => f.Categoria)
+                .Include(f => f.ClassificacaoIndicativa)
+                .Where(f => f.CategoriaId == categoriaId && f.Ativo)
                 .ToListAsync();
         }
 
@@ -124,10 +128,5 @@ namespace SenacFlix.Infrastructure.Repositorios
                 await _contexto.SaveChangesAsync();
             }
         }
-
-
-
-
-
     }
 }

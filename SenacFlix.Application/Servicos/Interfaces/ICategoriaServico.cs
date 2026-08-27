@@ -1,8 +1,10 @@
-﻿// Nome do arquivo: ICategoriaServico.cs
+// Nome do arquivo: ICategoriaServico.cs
 // Objetivo: Interface para o servico de categorias
 // Camada: Application
 // Como participa: Define as operacoes para manipulacao de categorias usando DTOs
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using SenacFlix.Application.DTOs;
 
 namespace SenacFlix.Application.Servicos.Interfaces
@@ -14,8 +16,7 @@ namespace SenacFlix.Application.Servicos.Interfaces
         Task<ApiResposta<CategoriaDto>> CadastrarAsync(CriarCategoriaDto dto);
         Task<ApiResposta<CategoriaDto>> AtualizarAsync(int id, CriarCategoriaDto dto);
         Task<ApiResposta<bool>> DesativarAsync(int id);
-        Task<ApiResposta<bool>>ReativarAsync(int id);
+        Task<ApiResposta<bool>> ReativarAsync(int id);
         Task<ApiResposta<bool>> ExcluirPermanentementeAsync(int id);
-
     }
 }

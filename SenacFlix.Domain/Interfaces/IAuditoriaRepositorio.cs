@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nome:         IAuditoriaRepositorio.cs
 // Objetivo:     Define o contrato de acesso a dados para a entidade Auditoria,
 //               permitindo registrar e consultar o log de acoes do sistema

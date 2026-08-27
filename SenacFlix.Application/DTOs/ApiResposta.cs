@@ -1,27 +1,29 @@
-﻿// Nome do arquivo: ApiResposta.cs
+// Nome do arquivo: ApiResposta.cs
 // Objetivo: DTO padronizado para respostas da API.
 // Camada: Application
 // Como participa: Todas as respostas da API vao utilizar este wrapper para garantir um formato consistente de retorno.
 
+using System.Collections.Generic;
+
 namespace SenacFlix.Application.DTOs
 {
-    // Classe genérica para resposta da API
+    // Classe generica para resposta da API
     public class ApiResposta<T>
     {
-        //indica se a operação foi bem-sucedida
+        // Indica se a operacao foi bem-sucedida
         public bool Sucesso { get; set; }
 
-        //Mensagem descritiva do resultado da operação
+        // Mensagem descritiva do resultado da operacao
         public string Mensagem { get; set; } = string.Empty;
 
-        // Dados retornados pela operação (pode ser nulo em caso de erro)
+        // Dados retornados pela operacao (pode ser nulo em caso de erro)
         public T? Dados { get; set; }
 
-        //Lista de erros de validação ou regras de negócio
+        // Lista de erros de validacao ou regras de negocio
         public List<string>? Erros { get; set; }
 
-        //Método estático para retornar sucesso com os dados
-        public static ApiResposta<T> Ok(T dados, string mensagem = "Operação realizada com sucesso.")
+        // Metodo estatico para retornar sucesso com dados
+        public static ApiResposta<T> Ok(T dados, string mensagem = "Operacao realizada com sucesso.")
         {
             return new ApiResposta<T>
             {
@@ -31,8 +33,7 @@ namespace SenacFlix.Application.DTOs
             };
         }
 
-      
-        //Método estático para retornar falha com lista de erros (ex: validação de campos de um formulário)
+        // Metodo estatico para retornar falha sem erros especificos
         public static ApiResposta<T> Falha(string mensagem)
         {
             return new ApiResposta<T>
@@ -41,9 +42,9 @@ namespace SenacFlix.Application.DTOs
                 Mensagem = mensagem
             };
         }
-      
-        //Método estático para retornar falha com lista de erros (ex: validação de campos de um formulário)
-        public static ApiResposta<T> FalhaValidacao(List<string> erros, string mensagem = "Erro de validação.")
+
+        // Metodo estatico para retornar falha com lista de erros (ex: validacao de campos)
+        public static ApiResposta<T> FalhaValidacao(List<string> erros, string mensagem = "Erro de validacao.")
         {
             return new ApiResposta<T>
             {
@@ -52,7 +53,5 @@ namespace SenacFlix.Application.DTOs
                 Erros = erros
             };
         }
-
-
     }
 }

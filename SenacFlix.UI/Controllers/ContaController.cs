@@ -1,12 +1,20 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using System.Security.Claims;
+// Nome do arquivo: ContaController.cs
+// Objetivo: Controlador MVC para Autenticacao
+// Camada: UI
+// Como participa: Chama a API para validar credenciais, gera Cookie e loga o usuario no navegador
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using SenacFlix.UI.Servicos;
 using SenacFlix.UI.ViewModels;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
-namespace SenacFlix.API.Controllers
+namespace SenacFlix.UI.Controllers
 {
     public class ContaController : Controller
     {
@@ -27,21 +35,19 @@ namespace SenacFlix.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
-            // se o modelstate estiver inválido, retorna a View com os erros de validação
-            //ModelState.IsValid é automaticamente populado pelo MVC com base nas anotações
-            //de validação no LoginViewModel
+            // Se o ModelState estiver invalido, retorna a View com os erros de validacao
+            //ModelState.IsValid é automaticamente populado pelo MVC com base nas anotações de validação no LoginViewModel
             if (!ModelState.IsValid)
                 return View(model);
 
-            //Chama a API de login
-            var resposta = await _api.PostAsync<LoginRespostaApi, LoginViewModel>("/api/Auth/login", model);
+            // Chama a API de login
+            var resposta = await _api.PostAsync<LoginRespostaApi, LoginViewModel>("/api/Autenticacao/login", model);
 
             if (resposta.Sucesso && resposta.Dados != null)
             {
                 var dados = resposta.Dados;
 
-                // salva o token JWT num cookie seguro HttpOnly para ser
-                // enviado para ApiCliente nas próximas requisições
+                // Salva o Token JWT num Cookie seguro HttpOnly para ser enviado pela ApiCliente nas proximas requisicoes
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
@@ -50,11 +56,13 @@ namespace SenacFlix.API.Controllers
                 };
                 Response.Cookies.Append("senacflix_token", dados.Token, cookieOptions);
 
+                // Cria os Claims para o Cookie do MVC (para que [Authorize] e User.Identity funcionem)
+                // Claim é uma informacao sobre o usuario, como nome, email, roles, etc.
                 var claims = new List<Claim>
                 {
-                  new Claim(ClaimTypes.Name, dados.NomeUsuario),
-                  new Claim(ClaimTypes.Email, dados.Email),
-                  new Claim("Token", dados.Token)
+                    new Claim(ClaimTypes.Name, dados.NomeUsuario),
+                    new Claim(ClaimTypes.Email, dados.Email),
+                    new Claim("Token", dados.Token) // Tambem guardado aqui por seguranca/praticidade
                 };
 
                 if (!string.IsNullOrEmpty(dados.FotoPerfilUrl))
@@ -62,7 +70,7 @@ namespace SenacFlix.API.Controllers
                     claims.Add(new Claim("FotoPerfil", dados.FotoPerfilUrl));
                 }
 
-                //Adiciona as roles
+                // Adiciona as roles
                 foreach (var role in dados.Perfis)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
@@ -75,11 +83,11 @@ namespace SenacFlix.API.Controllers
                     IsPersistent = model.LembrarMe
                 };
 
-                // Realize o SignIn no contexto do MVC
+                // Realiza o SignIn no contexto do MVC
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
 
-                //Redireciona para a view correta dependendo do perfil
-
+                // Redireciona dependendo do perfil
+                // Se houver um returnUrl válido, redireciona para ele
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
 
@@ -91,9 +99,9 @@ namespace SenacFlix.API.Controllers
 
             ModelState.AddModelError(string.Empty, resposta.Mensagem);
             return View(model);
-
         }
 
+        //Metodos httpget geralmente retornam uma view, enquanto os metodos httppost processam os dados enviados pelo usuario e retornam uma view ou redirecionam para outra action
         [HttpGet]
         public IActionResult Registrar()
         {
@@ -116,7 +124,7 @@ namespace SenacFlix.API.Controllers
                 DataNascimento = model.DataNascimento.ToString("yyyy-MM-dd")
             };
 
-            var resposta = await _api.PostAsync<object, object>("/api/Auth/registrar", dto);
+            var resposta = await _api.PostAsync<object, object>("/api/Autenticacao/registrar", dto);
 
             if (resposta.Sucesso)
             {
@@ -139,7 +147,6 @@ namespace SenacFlix.API.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Sair()
         {
@@ -154,24 +161,15 @@ namespace SenacFlix.API.Controllers
             return View();
         }
 
-
-
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
+        // Classe auxiliar para mapear a resposta especifica do endpoint de Login da API
         public class LoginRespostaApi
         {
             public string Token { get; set; } = string.Empty;
-            public DateTime Expiracao { get; set; }
+            public System.DateTime Expiracao { get; set; }
             public string NomeUsuario { get; set; } = string.Empty;
             public string Email { get; set; } = string.Empty;
-            public string? FotoPerfilUrl { get; set; } = string.Empty;
-            public List<string> Perfis { get; set; } = new List<string>();
+            public string? FotoPerfilUrl { get; set; }
+            public System.Collections.Generic.List<string> Perfis { get; set; } = new System.Collections.Generic.List<string>();
         }
-
-
     }
 }

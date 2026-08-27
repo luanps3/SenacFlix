@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nome:         Filme.cs
 // Objetivo:     Representa a entidade central da plataforma SenacFlix,
 //               contendo todos os dados de um titulo audiovisual disponivel

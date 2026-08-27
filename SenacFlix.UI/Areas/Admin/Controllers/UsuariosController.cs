@@ -60,8 +60,6 @@ namespace SenacFlix.UI.Areas.Admin.Controllers
         }
 
         // POST: /Admin/Usuarios/Ativar/5
-        // ValidateAntiForgeryToken serve para evitar ataques do tipo CSRF(Cross-Site Request Forgery)
-        // ele cria uma dupla chave e compara a do cliente com a do servidor.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Ativar(string id)

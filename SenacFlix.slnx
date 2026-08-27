@@ -1,7 +1,9 @@
 <Solution>
   <Project Path="SenacFlix.API/SenacFlix.API.csproj" />
   <Project Path="SenacFlix.Application/SenacFlix.Application.csproj" />
+  <Project Path="SenacFlix.Desktop/SenacFlix.Desktop.csproj" Id="cdddc666-301c-4cf3-967f-940f69968dd7" />
   <Project Path="SenacFlix.Domain/SenacFlix.Domain.csproj" />
   <Project Path="SenacFlix.Infrastructure/SenacFlix.Infrastructure.csproj" />
+  <Project Path="SenacFlix.Test/SenacFlix.Test.csproj" Id="7d0cf52f-2c21-4fc3-855b-76012bd90769" />
   <Project Path="SenacFlix.UI/SenacFlix.UI.csproj" />
 </Solution>

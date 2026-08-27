@@ -1,0 +1,86 @@
+@model SenacFlix.UI.ViewModels.PerfilViewModel
+@{
+    ViewData["Title"] = "Meu Perfil";
+}
+
+<div class="container mt-5 mb-5">
+    <!-- Hero Header do Perfil -->
+    <div class="card bg-dark text-white shadow mb-4" style="border: 1px solid var(--nf-gray-medium);">
+        <div class="card-body d-flex align-items-center">
+            <div class="me-4">
+                @if (!string.IsNullOrEmpty(Model.FotoAtualUrl))
+                {
+                    <img src="@Model.FotoAtualUrl" alt="Foto de Perfil" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid var(--nf-red);" />
+                }
+                else
+                {
+                    <img src="/img/default-avatar.png" alt="Avatar Padrão" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover; border: 2px solid var(--nf-gray-medium);" />
+                }
+            </div>
+            <div>
+                <h2 class="mb-1">@Model.DadosPessoais.Nome @Model.DadosPessoais.Sobrenome</h2>
+                <p class="text-muted mb-0">@Model.DadosPessoais.Email</p>
+                <span class="badge bg-danger mt-2">@Model.Cargo</span>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["Sucesso"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Erro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Abas -->
+    <div class="card bg-dark text-white shadow" style="border: 1px solid var(--nf-gray-medium);">
+        <div class="card-header border-bottom-0 pb-0">
+            <ul class="nav nav-tabs" id="perfilTabs" role="tablist" style="border-bottom: 1px solid var(--nf-gray-medium);">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active bg-transparent text-white" id="dados-tab" data-bs-toggle="tab" data-bs-target="#dados" type="button" role="tab" aria-controls="dados" aria-selected="true" style="border-color: var(--nf-gray-medium) var(--nf-gray-medium) var(--nf-bg) var(--nf-gray-medium);">
+                        <i class="bi bi-person-lines-fill me-1"></i> Dados Pessoais
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link bg-transparent text-white" id="foto-tab" data-bs-toggle="tab" data-bs-target="#foto" type="button" role="tab" aria-controls="foto" aria-selected="false">
+                        <i class="bi bi-camera-fill me-1"></i> Foto de Perfil
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link bg-transparent text-white" id="seguranca-tab" data-bs-toggle="tab" data-bs-target="#seguranca" type="button" role="tab" aria-controls="seguranca" aria-selected="false">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Segurança
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body pt-4 pb-4">
+            <div class="tab-content" id="perfilTabsContent">
+                
+                <!-- Aba: Dados Pessoais -->
+                <div class="tab-pane fade show active" id="dados" role="tabpanel" aria-labelledby="dados-tab">
+                    <partial name="_DadosPessoais" model="Model" />
+                </div>
+                
+                <!-- Aba: Foto de Perfil -->
+                <div class="tab-pane fade" id="foto" role="tabpanel" aria-labelledby="foto-tab">
+                    <partial name="_FotoPerfil" model="Model" />
+                </div>
+                
+                <!-- Aba: Segurança -->
+                <div class="tab-pane fade" id="seguranca" role="tabpanel" aria-labelledby="seguranca-tab">
+                    <partial name="_Seguranca" model="Model" />
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
